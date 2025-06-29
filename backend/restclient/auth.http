@@ -1,0 +1,43 @@
+
+@baseUrl = http://localhost:3000
+
+
+
+
+### 1. Register Admin User
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "kimutaibrian923@gmail.com",
+  "password": "admin123456",
+  "firstName": "Brian",
+  "lastName": "agent",
+  "role": "AGENT"
+}
+
+
+
+### 3. Login Admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "kimutaibrian922@gmail.com",
+  "password": "admin123456"
+}
+
+
+### 3. Login Agent
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "kimutai@agent922@gmail.com",
+  "password": "admin123456"
+}
+
+
+###
+GET http://localhost:3000/booking
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Mzk4NzE2Yy03NTM3LTQ0YjItODJlMC0xMGU3ZTNmY2RhMTkiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTExMTQ2NzYsImV4cCI6MTc1MTExNDY3Nn0.VNhpYl9kHRtMP7-B4ZmfllKgQeBcE8eBoqLAaWvXvbk

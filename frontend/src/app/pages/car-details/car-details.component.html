@@ -1,0 +1,158 @@
+<!-- Loading State -->
+<div *ngIf="isLoading" class="container-max py-12">
+  <div class="text-center">
+    <div class="spinner mx-auto mb-4"></div>
+    <p class="text-gray-600">Loading vehicle details...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="errorMessage && !isLoading" class="container-max py-12">
+  <div class="text-center">
+    <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+    </svg>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">Error Loading Vehicle</h3>
+    <p class="text-gray-600 mb-4">{{ errorMessage }}</p>
+    <button (click)="loadVehicle(vehicle?.id || '')" class="btn-primary">
+      Try Again
+    </button>
+  </div>
+</div>
+
+<!-- Vehicle Details -->
+<div *ngIf="vehicle && !isLoading" class="container-max py-8">
+  <!-- Breadcrumb -->
+  <nav class="mb-8">
+    <ol class="flex items-center space-x-2 text-sm text-gray-600">
+      <li><a routerLink="/" class="hover:text-blue-600">Home</a></li>
+      <li><span class="mx-2">/</span></li>
+      <li><a routerLink="/vehicles" class="hover:text-blue-600">Vehicles</a></li>
+      <li><span class="mx-2">/</span></li>
+      <li class="text-gray-900">{{ vehicle.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="grid lg:grid-cols-2 gap-12">
+    <!-- Vehicle Images -->
+    <div>
+      <div class="relative overflow-hidden rounded-2xl mb-4">
+        <img 
+          [src]="getVehicleImage()" 
+          [alt]="vehicle.name" 
+          class="w-full h-96 object-cover"
+        >
+        <div class="absolute top-4 right-4">
+          <span *ngIf="isVehiclePopular(vehicle)" class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+            Popular
+          </span>
+          <span *ngIf="isVehicleNew(vehicle)" class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+            New
+          </span>
+        </div>
+        <div class="absolute top-4 left-4">
+          <span *ngIf="!isVehicleAvailable()" class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+            Unavailable
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle Information -->
+    <div>
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ vehicle.name }}</h1>
+        <p class="text-xl text-gray-600 mb-4">{{ vehicle.make }} {{ vehicle.model }} - {{ vehicle.category }}</p>
+        
+        <!-- Price -->
+        <div class="text-3xl font-bold text-blue-600 mb-6">
+          ${{ vehicle.pricePerDay }}/day
+        </div>
+
+        <!-- Availability Status -->
+        <div class="mb-6">
+          <div class="flex items-center space-x-2">
+            <div class="w-3 h-3 rounded-full" [ngClass]="isVehicleAvailable() ? 'bg-green-500' : 'bg-red-500'"></div>
+            <span class="text-sm font-medium" [ngClass]="isVehicleAvailable() ? 'text-green-600' : 'text-red-600'">
+              {{ isVehicleAvailable() ? 'Available for booking' : 'Currently unavailable' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Book Button -->
+        <div class="mb-6">
+          <button 
+            (click)="bookVehicle()" 
+            [disabled]="!isVehicleAvailable()"
+            class="w-full btn-primary text-lg py-4 mb-3"
+            [ngClass]="{'opacity-50 cursor-not-allowed': !isVehicleAvailable()}"
+          >
+            {{ isVehicleAvailable() ? 'Book This Vehicle' : 'Currently Unavailable' }}
+          </button>
+          
+          <!-- Login reminder for non-authenticated users -->
+          <div *ngIf="!authService.isAuthenticated() && isVehicleAvailable()" 
+               class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+            <p class="text-sm text-blue-700">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              You'll need to login or create an account to book this vehicle
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vehicle Description -->
+      <div class="border-t pt-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Description</h3>
+        <p class="text-gray-700">{{ vehicle.category }} - {{ vehicle.transmission }} transmission, {{ vehicle.fuelType }} fuel</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Information -->
+  <div class="mt-12 border-t pt-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Vehicle Details</h2>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-gray-50 p-6 rounded-lg">
+        <h3 class="font-semibold text-gray-900 mb-2">Basic Information</h3>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div><span class="font-medium">Make:</span> {{ vehicle.make }}</div>
+          <div><span class="font-medium">Model:</span> {{ vehicle.model }}</div>
+          <div><span class="font-medium">Category:</span> {{ vehicle.category }}</div>
+          <div><span class="font-medium">Color:</span> {{ vehicle.color }}</div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-6 rounded-lg">
+        <h3 class="font-semibold text-gray-900 mb-2">Pricing & Availability</h3>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div><span class="font-medium">Daily Rate:</span> ${{ vehicle.pricePerDay }}</div>
+          <div><span class="font-medium">Available Units:</span> {{ vehicle.total }}</div>
+          <div><span class="font-medium">Mileage:</span> {{ vehicle.mileage }} km</div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-6 rounded-lg">
+        <h3 class="font-semibold text-gray-900 mb-2">Specifications</h3>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div><span class="font-medium">Transmission:</span> {{ vehicle.transmission }}</div>
+          <div><span class="font-medium">Fuel Type:</span> {{ vehicle.fuelType }}</div>
+          <div><span class="font-medium">Location:</span> {{ vehicle.city }}, {{ vehicle.postalCode }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Vehicles -->
+  <div class="mt-12 text-center">
+    <a routerLink="/vehicles" class="btn-secondary">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      Back to All Vehicles
+    </a>
+  </div>
+</div> 

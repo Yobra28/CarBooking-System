@@ -1,0 +1,32 @@
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
+    <h1 style="color: #28a745; margin: 0;">Booking Confirmed!</h1>
+  </div>
+  
+  <div style="padding: 20px;">
+    <p>Dear {{customerName}},</p>
+    
+    <p>Your car rental booking has been successfully confirmed. Here are the details:</p>
+    
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+      <h3 style="margin-top: 0; color: #333;">Booking Details</h3>
+      <p><strong>Booking ID:</strong> {{bookingDetails.id}}</p>
+      <p><strong>Start Date:</strong> {{bookingDetails.startDate}}</p>
+      <p><strong>End Date:</strong> {{bookingDetails.endDate}}</p>
+      <p><strong>Total Price:</strong> ${{bookingDetails.totalPrice}}</p>
+      <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">{{bookingDetails.status}}</span></p>
+    </div>
+    
+    <p>Please arrive at our location 15 minutes before your scheduled pickup time with a valid driver's license and the credit card used for booking.</p>
+    
+    <p>If you have any questions or need to make changes to your booking, please contact our customer service team.</p>
+    
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+      <p style="color: #666; font-size: 14px;">
+        Best regards,<br>
+        Car Rental Team<br>
+        <strong>Confirmation Date:</strong> {{confirmationDate}}
+      </p>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,493 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="container-max py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">My Dashboard</h1>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-600">Welcome, {{ user?.firstName }} {{ user?.lastName }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-max py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-blue-100 rounded-lg">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Total Rentals</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ dashboardStats.totalRentals }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-green-100 rounded-lg">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Completed</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ dashboardStats.completedRentals }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-yellow-100 rounded-lg">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Average Rating</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ dashboardStats.averageRating.toFixed(1) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-purple-100 rounded-lg">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Total Spent</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ formatCurrency(dashboardStats.totalSpent) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="mb-8">
+      <nav class="flex space-x-8 border-b border-gray-200">
+        <button 
+          (click)="setActiveTab('overview')"
+          [class]="activeTab === 'overview' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="py-2 px-1 border-b-2 font-medium text-sm"
+        >
+          Overview
+        </button>
+        <button 
+          (click)="setActiveTab('upcoming')"
+          [class]="activeTab === 'upcoming' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="py-2 px-1 border-b-2 font-medium text-sm"
+        >
+          Upcoming Rentals
+          <span *ngIf="dashboardStats.upcomingRentals > 0" class="ml-2 bg-blue-500 text-white text-xs rounded-full px-2 py-1">
+            {{ dashboardStats.upcomingRentals }}
+          </span>
+        </button>
+        <button 
+          (click)="setActiveTab('history')"
+          [class]="activeTab === 'history' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="py-2 px-1 border-b-2 font-medium text-sm"
+        >
+          Rental History
+        </button>
+        <button 
+          (click)="setActiveTab('profile')"
+          [class]="activeTab === 'profile' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="py-2 px-1 border-b-2 font-medium text-sm"
+        >
+          Profile
+        </button>
+      </nav>
+    </div>
+
+    <!-- Overview Tab -->
+    <div *ngIf="activeTab === 'overview'">
+      <!-- Upcoming Rentals -->
+      <div class="bg-white rounded-lg shadow mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Upcoming Rentals</h3>
+        </div>
+        <div class="p-6">
+          <div *ngIf="getUpcomingRentals().length === 0" class="text-center py-8">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="text-gray-600">No upcoming rentals</p>
+            <a routerLink="/vehicles" class="btn-primary mt-4">Book a Vehicle</a>
+          </div>
+
+          <!-- Pending Rentals -->
+          <div *ngIf="getPendingRentals().length > 0">
+            <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
+              <svg class="w-4 h-4 text-yellow-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Pending Confirmation ({{ getPendingRentals().length }})
+            </h4>
+            <div *ngFor="let rental of getPendingRentals()" class="border border-yellow-200 rounded-lg p-4 mb-4 bg-yellow-50">
+              <div class="flex items-center space-x-4">
+                <img [src]="getVehicleImage(rental.vehicleImage)" [alt]="rental.vehicleName" class="w-16 h-16 rounded-lg object-cover">
+                <div class="flex-1">
+                  <h4 class="font-medium text-gray-900">{{ rental.vehicleName }}</h4>
+                  <p class="text-sm text-gray-600">{{ formatDate(rental.startDate) }} - {{ formatDate(rental.endDate) }}</p>
+                  <p class="text-sm text-gray-600">{{ formatCurrency(rental.totalAmount) }}</p>
+                  <p class="text-xs text-yellow-700 mt-1">Waiting for agent confirmation</p>
+                </div>
+                <div class="text-right">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                    Pending
+                  </span>
+                  <div class="mt-2 space-x-2">
+                    <button (click)="openRentalDetails(rental)" class="text-blue-600 hover:text-blue-900 text-sm">View Details</button>
+                    <button (click)="cancelBooking(rental.id)" class="text-red-600 hover:text-red-900 text-sm">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirmed Rentals -->
+          <div *ngIf="getConfirmedRentals().length > 0">
+            <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
+              <svg class="w-4 h-4 text-blue-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Confirmed Rentals ({{ getConfirmedRentals().length }})
+            </h4>
+            <div *ngFor="let rental of getConfirmedRentals()" class="border rounded-lg p-4 mb-4">
+              <div class="flex items-center space-x-4">
+                <img [src]="getVehicleImage(rental.vehicleImage)" [alt]="rental.vehicleName" class="w-16 h-16 rounded-lg object-cover">
+                <div class="flex-1">
+                  <h4 class="font-medium text-gray-900">{{ rental.vehicleName }}</h4>
+                  <p class="text-sm text-gray-600">{{ formatDate(rental.startDate) }} - {{ formatDate(rental.endDate) }}</p>
+                  <p class="text-sm text-gray-600">{{ formatCurrency(rental.totalAmount) }}</p>
+                  <p class="text-xs text-blue-700 mt-1">Confirmed by agent - ready for pickup</p>
+                </div>
+                <div class="text-right">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    Confirmed
+                  </span>
+                  <div class="mt-2 space-x-2">
+                    <button (click)="openRentalDetails(rental)" class="text-blue-600 hover:text-blue-900 text-sm">View Details</button>
+                    <button (click)="cancelBooking(rental.id)" class="text-red-600 hover:text-red-900 text-sm">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Rentals -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Recent Rentals</h3>
+        </div>
+        <div class="p-6">
+          <div *ngFor="let rental of getCompletedRentals().slice(0, 3)" class="border rounded-lg p-4 mb-4">
+            <div class="flex items-center space-x-4">
+              <img [src]="getVehicleImage(rental.vehicleImage)" [alt]="rental.vehicleName" class="w-16 h-16 rounded-lg object-cover">
+              <div class="flex-1">
+                <h4 class="font-medium text-gray-900">{{ rental.vehicleName }}</h4>
+                <p class="text-sm text-gray-600">{{ formatDate(rental.startDate) }} - {{ formatDate(rental.endDate) }}</p>
+                <div class="flex items-center mt-1">
+                  <div class="flex">
+                    <svg *ngFor="let starClass of getStarRating(rental.rating)" 
+                         [ngClass]="starClass" 
+                         class="w-4 h-4" 
+                         fill="currentColor" 
+                         viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                    </svg>
+                  </div>
+                  <span class="text-sm text-gray-600 ml-2">{{ rental.rating }}/5</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-medium text-gray-900">{{ formatCurrency(rental.totalAmount) }}</p>
+                <button (click)="openRentalDetails(rental)" class="text-blue-600 hover:text-blue-900 text-sm">View Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Rentals Tab -->
+    <div *ngIf="activeTab === 'upcoming'">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Upcoming Rentals</h3>
+        </div>
+        <div class="p-6">
+          <div *ngIf="getUpcomingRentals().length === 0" class="text-center py-8">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="text-gray-600">No upcoming rentals</p>
+            <a routerLink="/vehicles" class="btn-primary mt-4">Book a Vehicle</a>
+          </div>
+
+          <!-- Pending Rentals -->
+          <div *ngIf="getPendingRentals().length > 0">
+            <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center">
+              <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Pending Confirmation ({{ getPendingRentals().length }})
+            </h4>
+            <div class="mb-6">
+              <div *ngFor="let rental of getPendingRentals()" class="border border-yellow-200 rounded-lg p-6 mb-4 bg-yellow-50">
+                <div class="flex items-center space-x-4">
+                  <img [src]="getVehicleImage(rental.vehicleImage)" [alt]="rental.vehicleName" class="w-20 h-20 rounded-lg object-cover">
+                  <div class="flex-1">
+                    <h4 class="text-lg font-medium text-gray-900">{{ rental.vehicleName }}</h4>
+                    <p class="text-sm text-gray-600">{{ formatDate(rental.startDate) }} - {{ formatDate(rental.endDate) }}</p>
+                    <p class="text-sm text-gray-600">Pickup: Main Office</p>
+                    <p class="text-sm text-gray-600">Return: Main Office</p>
+                    <p class="text-lg font-semibold text-gray-900 mt-2">{{ formatCurrency(rental.totalAmount) }}</p>
+                    <p class="text-sm text-yellow-700 mt-2">
+                      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      Waiting for agent confirmation
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                      Pending
+                    </span>
+                    <div class="mt-4 space-x-2">
+                      <button (click)="openRentalDetails(rental)" class="btn-secondary">View Details</button>
+                      <button (click)="cancelBooking(rental.id)" class="btn-primary bg-red-600 hover:bg-red-700">Cancel Booking</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirmed Rentals -->
+          <div *ngIf="getConfirmedRentals().length > 0">
+            <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center">
+              <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Confirmed Rentals ({{ getConfirmedRentals().length }})
+            </h4>
+            <div *ngFor="let rental of getConfirmedRentals()" class="border rounded-lg p-6 mb-4">
+              <div class="flex items-center space-x-4">
+                <img [src]="getVehicleImage(rental.vehicleImage)" [alt]="rental.vehicleName" class="w-20 h-20 rounded-lg object-cover">
+                <div class="flex-1">
+                  <h4 class="text-lg font-medium text-gray-900">{{ rental.vehicleName }}</h4>
+                  <p class="text-sm text-gray-600">{{ formatDate(rental.startDate) }} - {{ formatDate(rental.endDate) }}</p>
+                  <p class="text-sm text-gray-600">Pickup: Main Office</p>
+                  <p class="text-sm text-gray-600">Return: Main Office</p>
+                  <p class="text-lg font-semibold text-gray-900 mt-2">{{ formatCurrency(rental.totalAmount) }}</p>
+                  <p class="text-sm text-blue-700 mt-2">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Confirmed by agent - ready for pickup
+                  </p>
+                </div>
+                <div class="text-right">
+                  <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    Confirmed
+                  </span>
+                  <div class="mt-4 space-x-2">
+                    <button (click)="openRentalDetails(rental)" class="btn-secondary">View Details</button>
+                    <button (click)="cancelBooking(rental.id)" class="btn-primary bg-red-600 hover:bg-red-700">Cancel Booking</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rental History Tab -->
+    <div *ngIf="activeTab === 'history'">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Rental History</h3>
+        </div>
+        <div class="p-6">
+          <!-- Completed Rentals -->
+          <div *ngIf="getCompletedRentals().length > 0">
+            <h4 class="text-md font-medium text-gray-900 mb-4">Completed Rentals</h4>
+            <div *ngFor="let rental of getCompletedRentals()" class="border rounded-lg p-6 mb-4">
+              <div class="flex items-center space-x-4">
+                <img [src]="getVehicleImage(rental.vehicleImage)" [alt]="rental.vehicleName" class="w-20 h-20 rounded-lg object-cover">
+                <div class="flex-1">
+                  <h4 class="text-lg font-medium text-gray-900">{{ rental.vehicleName }}</h4>
+                  <p class="text-sm text-gray-600">{{ formatDate(rental.startDate) }} - {{ formatDate(rental.endDate) }}</p>
+                  <p class="text-sm text-gray-600">Pickup: Main Office</p>
+                  <p class="text-sm text-gray-600">Return: Main Office</p>
+                  <div class="flex items-center mt-2">
+                    <div class="flex">
+                      <svg *ngFor="let starClass of getStarRating(rental.rating)" 
+                           [ngClass]="starClass" 
+                           class="w-4 h-4" 
+                           fill="currentColor" 
+                           viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                      </svg>
+                    </div>
+                    <span class="text-sm text-gray-600 ml-2">{{ rental.rating }}/5</span>
+                  </div>
+                  <p *ngIf="rental.review" class="text-sm text-gray-600 mt-2 italic">"{{ rental.review }}"</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-lg font-semibold text-gray-900">{{ formatCurrency(rental.totalAmount) }}</p>
+                  <button (click)="openRentalDetails(rental)" class="btn-secondary mt-2">View Details</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cancelled Rentals -->
+          <div *ngIf="getCancelledRentals().length > 0">
+            <h4 class="text-md font-medium text-gray-900 mb-4 mt-8">Cancelled Rentals</h4>
+            <div *ngFor="let rental of getCancelledRentals()" class="border rounded-lg p-6 mb-4 bg-gray-50">
+              <div class="flex items-center space-x-4">
+                <img [src]="getVehicleImage(rental.vehicleImage)" [alt]="rental.vehicleName" class="w-20 h-20 rounded-lg object-cover opacity-75">
+                <div class="flex-1">
+                  <h4 class="text-lg font-medium text-gray-900">{{ rental.vehicleName }}</h4>
+                  <p class="text-sm text-gray-600">{{ formatDate(rental.startDate) }} - {{ formatDate(rental.endDate) }}</p>
+                  <p class="text-sm text-gray-600">Pickup: Main Office</p>
+                  <p class="text-sm text-gray-600">Return: Main Office</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-lg font-semibold text-gray-900">{{ formatCurrency(rental.totalAmount) }}</p>
+                  <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-red-100 text-red-800 mt-2">
+                    Cancelled
+                  </span>
+                  <button (click)="openRentalDetails(rental)" class="btn-secondary mt-2 block">View Details</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No rentals message -->
+          <div *ngIf="getCompletedRentals().length === 0 && getCancelledRentals().length === 0" class="text-center py-8">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <p class="text-gray-600">No rental history yet</p>
+            <a routerLink="/vehicles" class="btn-primary mt-4">Book a Vehicle</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div *ngIf="activeTab === 'profile'">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Profile Information</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Full Name</label>
+              <p class="text-sm text-gray-900 mt-1">{{ user?.firstName }} {{ user?.lastName }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <p class="text-sm text-gray-900 mt-1">{{ user?.email }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Phone</label>
+              <p class="text-sm text-gray-900 mt-1">N/A</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Member Since</label>
+              <p class="text-sm text-gray-900 mt-1">{{ formatDate(user?.createdAt) }}</p>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700">Address</label>
+              <p class="text-sm text-gray-900 mt-1">N/A</p>
+            </div>
+          </div>
+          <div class="mt-6">
+            <button class="btn-primary">Edit Profile</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rental Details Modal -->
+<div *ngIf="showRentalModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Rental Details</h3>
+      <div *ngIf="selectedRental" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Vehicle</label>
+          <p class="text-sm text-gray-900">{{ selectedRental.vehicleName }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Rental Period</label>
+          <p class="text-sm text-gray-900">{{ formatDate(selectedRental.startDate) }} - {{ formatDate(selectedRental.endDate) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Pickup Location</label>
+          <p class="text-sm text-gray-900">Main Office</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Return Location</label>
+          <p class="text-sm text-gray-900">Main Office</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Total Amount</label>
+          <p class="text-sm text-gray-900">{{ formatCurrency(selectedRental.totalAmount) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Status</label>
+          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
+                [ngClass]="getStatusColor(selectedRental.status)">
+            {{ selectedRental.status | titlecase }}
+          </span>
+        </div>
+        <div *ngIf="selectedRental.rating">
+          <label class="block text-sm font-medium text-gray-700">Rating</label>
+          <div class="flex items-center mt-1">
+            <div class="flex">
+              <svg *ngFor="let starClass of getStarRating(selectedRental.rating)" 
+                   [ngClass]="starClass" 
+                   class="w-4 h-4" 
+                   fill="currentColor" 
+                   viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+              </svg>
+            </div>
+            <span class="text-sm text-gray-600 ml-2">{{ selectedRental.rating }}/5</span>
+          </div>
+        </div>
+        <div *ngIf="selectedRental.review">
+          <label class="block text-sm font-medium text-gray-700">Review</label>
+          <p class="text-sm text-gray-900 mt-1 italic">"{{ selectedRental.review }}"</p>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+          <button (click)="closeModal()" class="btn-secondary">Close</button>
+          <button *ngIf="selectedRental.status === 'upcoming'" 
+                  (click)="cancelBooking(selectedRental.id); closeModal()" 
+                  class="btn-primary bg-red-600 hover:bg-red-700">Cancel Booking</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

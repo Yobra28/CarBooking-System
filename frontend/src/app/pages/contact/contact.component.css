@@ -1,0 +1,16 @@
+/* Contact component specific styles */
+.contact-form {
+  transition: all 0.3s ease;
+}
+
+.contact-form:focus-within {
+  transform: translateY(-2px);
+}
+
+.faq-item {
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+} 

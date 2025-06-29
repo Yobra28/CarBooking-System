@@ -1,0 +1,16 @@
+### Test Login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "kimutaibrian922@gmail.com",
+  "password": "your_password_here"
+}
+
+### Test Authentication (replace YOUR_TOKEN with the token from login response)
+GET http://localhost:3000/auth/test
+Authorization: Bearer YOUR_TOKEN
+
+### Test Bookings (replace YOUR_TOKEN with the token from login response)
+GET http://localhost:3000/booking
+Authorization: Bearer YOUR_TOKEN 

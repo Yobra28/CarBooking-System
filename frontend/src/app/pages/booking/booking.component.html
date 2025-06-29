@@ -1,0 +1,73 @@
+<div *ngIf="car" class="container mx-auto py-8">
+  <h2 class="text-2xl font-bold mb-4">Book {{ car.name }}</h2>
+  
+  <!-- Car Details -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6 max-w-md">
+    <div class="flex items-center space-x-4 mb-4">
+      <img [src]="car.images" [alt]="car.name" class="w-20 h-20 rounded-lg object-cover">
+      <div>
+        <h3 class="text-lg font-semibold">{{ car.name }}</h3>
+        <p class="text-gray-600">{{ car.make }} {{ car.model }}</p>
+        <p class="text-green-600 font-semibold">${{ car.pricePerDay }}/day</p>
+      </div>
+    </div>
+  </div>
+
+  <form (ngSubmit)="book()" class="space-y-4 max-w-md">
+    <!-- Guest Information (only show if not authenticated) -->
+    <div *ngIf="!authService.isAuthenticated()" class="bg-gray-50 p-4 rounded-lg">
+      <h3 class="font-semibold mb-3">Guest Information</h3>
+      <input type="text" [(ngModel)]="bookingData.guestName" name="guestName" placeholder="Your Name" class="w-full border p-2 rounded mb-3" required>
+      <input type="email" [(ngModel)]="bookingData.guestEmail" name="guestEmail" placeholder="Your Email" class="w-full border p-2 rounded mb-3" required>
+      <input type="text" [(ngModel)]="bookingData.guestPhone" name="guestPhone" placeholder="Your Phone" class="w-full border p-2 rounded" required>
+    </div>
+
+    <!-- Booking Dates -->
+    <div class="bg-white border rounded-lg p-4">
+      <h3 class="font-semibold mb-3">Rental Period</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+          <input type="date" 
+                 [(ngModel)]="bookingData.vehicles[0].startDate" 
+                 name="startDate" 
+                 (change)="onDateChange()"
+                 class="w-full border p-2 rounded" 
+                 required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+          <input type="date" 
+                 [(ngModel)]="bookingData.vehicles[0].endDate" 
+                 name="endDate" 
+                 (change)="onDateChange()"
+                 class="w-full border p-2 rounded" 
+                 required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price Summary -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <h3 class="font-semibold mb-2">Price Summary</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span>Price per day:</span>
+          <span>${{ bookingData.vehicles[0].price }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Number of days:</span>
+          <span>{{ getNumberOfDays() }}</span>
+        </div>
+        <div class="border-t pt-2 flex justify-between font-semibold">
+          <span>Total Price:</span>
+          <span class="text-lg text-blue-600">${{ getFormattedTotalPrice() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold">
+      Book Now - ${{ getFormattedTotalPrice() }}
+    </button>
+  </form>
+</div>

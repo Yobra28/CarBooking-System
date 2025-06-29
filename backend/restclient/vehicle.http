@@ -1,0 +1,109 @@
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### Create a new vehicle - Success Case
+POST {{baseUrl}}/vehicles
+Content-Type: {{contentType}}
+
+{
+  "name": "Tesla Model S",
+  "make": "Tesla",
+  "model": "Model S",
+  "category": "Sedan",
+  "transmission": "AUTOMATIC",
+  "total": 1,
+  "fuelType": "ELECTRIC",
+  "pricePerDay": 79999.99,
+  "color": "blue",
+  "mileage": 0,
+  "images": "image_url.jpg",
+  "address": "123 Main St",
+  "city": "San Francisco",
+  "postalCode": "94105"
+}
+
+
+### 11. Search vehicles
+GET {{baseUrl}}/vehicles?search=red
+
+
+### 12. Get Single vehicle
+GET {{baseUrl}}/vehicles/Model S
+
+### Create Vehicle
+POST http://localhost:3000/vehicles
+Content-Type: application/json
+
+{
+  "name": "Test Car",
+  "make": "Toyota",
+  "model": "Corolla",
+  "category": "Sedan",
+  "transmission": "AUTOMATIC",
+  "total": 10,
+  "fuelType": "GASOLINE",
+  "pricePerDay": 50,
+  "color": "blueish",
+  "mileage": 10000,
+  "images": "https://cdn.pixabay.com/photo/2012/05/29/00/43/car-49278_1280.jpg",
+  "address": "123 Main St",
+  "city": "Metropolis",
+  "postalCode": "12345"
+}
+
+### Get All Vehicles
+GET http://localhost:3000/vehicles
+
+
+### get by id
+GET http://localhost:3000/vehicles/d4de81f3-22f4-48b7-a4a0-e6f6536f9b3f
+
+### Get Vehicle by Name
+GET http://localhost:3000/vehicles/Toyota
+
+### Update Vehicle
+PATCH http://localhost:3000/vehicles/948bd833-a388-4b4b-9a67-2b4bc60d8a8a
+Content-Type: application/json
+
+{
+  "name": "Tesla model S",
+  "total": 15
+}
+
+### Soft Delete Vehicle
+DELETE http://localhost:3000/vehicles/31557bc6-e3ab-4f54-91d5-ed292b4cdc61
+Content-Type: application/json
+
+### Upload an image to Cloudinary
+POST http://localhost:3000/cloudinary/upload
+Content-Type: multipart/form-data; boundary=---011000010111000001101001
+
+-----011000010111000001101001
+Content-Disposition: form-data; name="file"; filename="car.jpg"
+Content-Type: image/jpeg
+
+
+
+### Create a vehicle (replace <IMAGE_URL> with the URL from the upload response)
+POST http://localhost:3000/vehicles
+Content-Type: application/json
+
+{
+  "name": "Toyota Camry",
+  "make": "Toyota",
+  "model": "Camry",
+  "category": "Sedan",
+  "transmission": "AUTOMATIC",
+  "total": 5,
+  "fuelType": "GASOLINE",
+  "pricePerDay": 50.0,
+  "color": "Blue",
+  "mileage": 20000,
+  "images": "https://www.google.com/imgres?q=toyota%20camry&imgurl=https%3A%2F%2Fimages.dealer.com%2Fddc%2Fvehicles%2F2025%2FToyota%2FCamry%2FSedan%2Fstill%2Ffront-left%2Ffront-left-640-en_US.jpg&imgrefurl=https%3A%2F%2Fwww.cavendertoyota.com%2Fmodels%2Ftoyota-camry-san-antonio-tx.htm&docid=0Z7w-9J1MTPDIM&tbnid=OBHWy_owcq1nRM&vet=12ahUKEwiDrf2Jj5KOAxUtSaQEHVbmLsUQM3oECGYQAA..i&w=640&h=480&hcb=2&ved=2ahUKEwiDrf2Jj5KOAxUtSaQEHVbmLsUQM3oECGYQAA",
+  "address": "123 Main St",
+  "city": "Nairobi",
+  "postalCode": "00100"
+}
+
+
+

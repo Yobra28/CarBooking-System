@@ -1,0 +1,216 @@
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+  <div class="container-max section-padding">
+    <div class="text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Vehicle Fleet</h1>
+      <p class="text-xl text-blue-100 max-w-2xl mx-auto">
+        Choose from our extensive collection of well-maintained vehicles for every occasion
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Login Reminder Banner -->
+<div *ngIf="!authService.isAuthenticated()" class="bg-blue-50 border-b border-blue-200">
+  <div class="container-max py-4">
+    <div class="flex items-center justify-center text-center">
+      <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <p class="text-blue-700">
+        <span class="font-medium">Login or create an account</span> to book vehicles and manage your rentals
+      </p>
+      <a routerLink="/login" class="ml-4 text-blue-600 hover:text-blue-800 font-medium underline">
+        Login Now
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Search and Filter Section -->
+<section class="bg-white border-b">
+  <div class="container-max py-8">
+    <div class="grid md:grid-cols-4 gap-4">
+      <!-- Search Input -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Search Vehicles</label>
+        <div class="relative">
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm"
+            (input)="filterVehicles()"
+            placeholder="Search by brand, model, or type..."
+            class="input-field pl-10"
+          >
+          <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Vehicle Type Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Type</label>
+        <select [(ngModel)]="selectedType" (change)="filterVehicles()" class="input-field">
+          <option value="">All Types</option>
+          <option value="economy">Economy</option>
+          <option value="compact">Compact</option>
+          <option value="suv">SUV</option>
+          <option value="luxury">Luxury</option>
+          <option value="van">Van</option>
+        </select>
+      </div>
+
+      <!-- Price Range Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+        <select [(ngModel)]="selectedPriceRange" (change)="filterVehicles()" class="input-field">
+          <option value="">All Prices</option>
+          <option value="0-50">$0 - $50/day</option>
+          <option value="50-100">$50 - $100/day</option>
+          <option value="100-150">$100 - $150/day</option>
+          <option value="150+">$150+/day</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Clear Filters Button -->
+    <div class="mt-4 flex justify-end">
+      <button 
+        (click)="clearFilters()" 
+        class="text-sm text-gray-600 hover:text-gray-800 flex items-center"
+        *ngIf="searchTerm || selectedType || selectedPriceRange"
+      >
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        Clear Filters
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Vehicles Grid -->
+<section class="section-padding bg-gray-50">
+  <div class="container-max">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Available Vehicles</h1>
+      
+      <!-- Search Results Info -->
+      <div *ngIf="searchTerm || selectedType || selectedPriceRange" class="text-sm text-gray-600">
+        <span *ngIf="filteredVehicles.length > 0">
+          {{ filteredVehicles.length }} vehicle{{ filteredVehicles.length !== 1 ? 's' : '' }} found
+        </span>
+        <span *ngIf="filteredVehicles.length === 0">
+          No vehicles found
+        </span>
+        <span *ngIf="searchTerm || selectedType || selectedPriceRange">
+          for 
+          <span *ngIf="searchTerm" class="font-medium">"{{ searchTerm }}"</span>
+          <span *ngIf="selectedType" class="font-medium">{{ selectedType }}</span>
+          <span *ngIf="selectedPriceRange" class="font-medium">{{ selectedPriceRange }}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center py-12">
+      <div class="spinner mx-auto mb-4"></div>
+      <p class="text-gray-600">Loading vehicles...</p>
+    </div>
+
+    <!-- Vehicles Grid -->
+    <div *ngIf="!isLoading && filteredVehicles.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div *ngFor="let vehicle of filteredVehicles" class="card overflow-hidden group">
+        <div class="relative overflow-hidden">
+          <img [src]="getVehicleImage(vehicle)" [alt]="vehicle.name" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+          <div class="absolute top-4 right-4 flex flex-col gap-2">
+            <span *ngIf="isVehiclePopular(vehicle)" class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Popular
+            </span>
+            <span *ngIf="isVehicleNew(vehicle)" class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+              New
+            </span>
+            <span *ngIf="vehicle.total === 0" class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Unavailable
+            </span>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ vehicle.name }}</h3>
+          <p class="text-gray-600 mb-4">{{ vehicle.make }} {{ vehicle.model }} - {{ vehicle.category }}</p>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-4 text-sm text-gray-600">
+              <span class="flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ vehicle.color }}
+              </span>
+            </div>
+            <div class="text-2xl font-bold text-blue-600">${{ vehicle.pricePerDay }}/day</div>
+          </div>
+          <a 
+            [routerLink]="['/car', vehicle.id]"
+            class="btn-primary w-full text-center block"
+          >
+            View Details
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Vehicles State -->
+    <div *ngIf="!isLoading && filteredVehicles.length === 0" class="text-center py-12">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.47-.881-6.08-2.33"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No vehicles available</h3>
+      <p class="text-gray-600">Check back later for our latest vehicles</p>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="section-padding bg-white">
+  <div class="container-max">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose Our Vehicles?</h2>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        We maintain the highest standards for our fleet to ensure your safety and comfort
+      </p>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-4">Well Maintained</h3>
+        <p class="text-gray-600">All vehicles undergo regular maintenance and safety checks</p>
+      </div>
+      
+      <div class="text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-4">Fully Insured</h3>
+        <p class="text-gray-600">Comprehensive insurance coverage for your peace of mind</p>
+      </div>
+      
+      <div class="text-center">
+        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 109.75 9.75A9.75 9.75 0 0012 2.25z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-4">24/7 Support</h3>
+        <p class="text-gray-600">Round-the-clock customer support to assist you with any questions or issues</p>
+      </div>
+    </div>
+  </div>
+</section> 

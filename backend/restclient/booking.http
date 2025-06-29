@@ -1,0 +1,38 @@
+### Create a new booking with multiple vehicles
+POST http://localhost:3000/booking
+Content-Type: application/json
+
+{
+  "userId": "28dd1abc-9dc2-44b0-b0d5-cfa450309f8d",
+  "vehicles": [
+    {
+      "vehicleId": "0f50cfc1-2ece-4d9d-971b-85dbc058d39f",
+      "startDate": "2024-07-01T10:00:00.000Z",
+      "endDate": "2024-07-05T10:00:00.000Z",
+      "price": 100.0
+    }
+  ],
+  "totalPrice": 220.0
+}
+# Replace <USER_ID>, <VEHICLE_ID_1>, and <VEHICLE_ID_2> with actual IDs from your database. 
+
+### Guest booking (no login required)
+POST http://localhost:3000/booking
+Content-Type: application/json
+
+{
+  "guestName": "Jane Doe",
+  "guestEmail": "jane.doe@example.com",
+  "guestPhone": "+254712345678",
+  "vehicles": [
+    {
+      "vehicleId": "0f50cfc1-2ece-4d9d-971b-85dbc058d39f",
+      "startDate": "2024-07-10T10:00:00.000Z",
+      "endDate": "2024-07-12T10:00:00.000Z",
+      "price": 80.0
+    }
+  ],
+  "totalPrice": 80.0
+}
+
+# Replace <VEHICLE_ID_1> with an actual vehicle ID from your database. 

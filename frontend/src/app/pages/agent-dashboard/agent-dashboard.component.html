@@ -1,0 +1,283 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="container-max py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Agent Dashboard</h1>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-600">Welcome, {{ currentUser?.firstName }} {{ currentUser?.lastName }}</span>
+          <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{{ currentUser?.role }}</span>
+          <a routerLink="/" class="text-indigo-600 hover:text-indigo-500">Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-max py-8">
+    <!-- Message Display -->
+    <div *ngIf="message" 
+         [class]="messageType === 'success' ? 'bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6' : 'bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6'">
+      {{ message }}
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12 mb-8">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-blue-100 rounded-lg">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Total Bookings</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ dashboardStats.totalBookings }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-yellow-100 rounded-lg">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Pending Bookings</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ dashboardStats.pendingBookings }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-green-100 rounded-lg">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Completed</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ dashboardStats.completedBookings }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-purple-100 rounded-lg">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Unread Messages</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ getUnreadMessagesCount() }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="mb-8">
+      <nav class="flex space-x-8 border-b border-gray-200">
+        <button 
+          (click)="setActiveTab('bookings')"
+          [class]="activeTab === 'bookings' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="py-2 px-1 border-b-2 font-medium text-sm"
+        >
+          Bookings
+        </button>
+        <button 
+          (click)="setActiveTab('messages')"
+          [class]="activeTab === 'messages' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          class="py-2 px-1 border-b-2 font-medium text-sm"
+        >
+          Contact Messages
+          <span *ngIf="getUnreadMessagesCount() > 0" class="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+            {{ getUnreadMessagesCount() }}
+          </span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Bookings Tab -->
+    <div *ngIf="activeTab === 'bookings'">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Booking Management</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let booking of bookings">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ getCustomerName(booking) }}</div>
+                    <div class="text-sm text-gray-500">{{ getCustomerEmail(booking) }}</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ getBookingVehicleName(booking) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div>{{ formatDate(getBookingStartDate(booking)) }}</div>
+                  <div class="text-gray-500">to {{ formatDate(getBookingEndDate(booking)) }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(booking.totalPrice) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
+                        [ngClass]="getStatusColor(booking.status)">
+                    {{ booking.status | titlecase }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                  <button (click)="openBookingDetails(booking)" class="text-blue-600 hover:text-blue-900">View</button>
+                  <button *ngIf="booking.status === 'PENDING'" 
+                          (click)="updateBookingStatus(booking.id, 'CONFIRMED')" 
+                          class="text-green-600 hover:text-green-900">Confirm</button>
+                  <button *ngIf="booking.status === 'PENDING'" 
+                          (click)="updateBookingStatus(booking.id, 'CANCELLED')" 
+                          class="text-red-600 hover:text-red-900">Cancel</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages Tab -->
+    <div *ngIf="activeTab === 'messages'">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Contact Messages</h3>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+          <div *ngFor="let message of contactMessages" 
+               class="p-6 hover:bg-gray-50 cursor-pointer"
+               (click)="openMessageDetails(message)">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-2 h-2 rounded-full" 
+                     [ngClass]="message.status === 'unread' ? 'bg-blue-500' : 'bg-gray-300'"></div>
+                <div>
+                  <h4 class="text-sm font-medium text-gray-900">{{ message.subject }}</h4>
+                  <p class="text-sm text-gray-500">From: {{ message.firstName }} {{ message.lastName }} ({{ message.email }})</p>
+                  <p class="text-sm text-gray-600 mt-1">{{ message.message.substring(0, 100) }}...</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-gray-500">{{ formatDateTime(message.createdAt) }}</p>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full mt-1" 
+                      [ngClass]="getMessageStatusColor(message.status)">
+                  {{ message.status | titlecase }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div *ngIf="showBookingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Booking Details</h3>
+      <div *ngIf="selectedBooking" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Customer</label>
+          <p class="text-sm text-gray-900">{{ getCustomerName(selectedBooking) }}</p>
+          <p class="text-sm text-gray-500">{{ getCustomerEmail(selectedBooking) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Vehicle</label>
+          <p class="text-sm text-gray-900">{{ getBookingVehicleName(selectedBooking) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Rental Period</label>
+          <p class="text-sm text-gray-900">{{ formatDate(getBookingStartDate(selectedBooking)) }} - {{ formatDate(getBookingEndDate(selectedBooking)) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Pickup Location</label>
+          <p class="text-sm text-gray-900">Main Office</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Return Location</label>
+          <p class="text-sm text-gray-900">Main Office</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Total Amount</label>
+          <p class="text-sm text-gray-900">{{ formatCurrency(selectedBooking.totalPrice) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Status</label>
+          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
+                [ngClass]="getStatusColor(selectedBooking.status)">
+            {{ selectedBooking.status | titlecase }}
+          </span>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+          <button (click)="closeModal()" class="btn-secondary">Close</button>
+          <button *ngIf="selectedBooking.status === 'PENDING'" 
+                  (click)="updateBookingStatus(selectedBooking.id, 'CONFIRMED'); closeModal()" 
+                  class="btn-primary">Confirm Booking</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Message Details Modal -->
+<div *ngIf="showMessageModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Message Details</h3>
+      <div *ngIf="selectedMessage" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">From</label>
+          <p class="text-sm text-gray-900">{{ selectedMessage.firstName }} {{ selectedMessage.lastName }}</p>
+          <p class="text-sm text-gray-500">{{ selectedMessage.email }}</p>
+          <p *ngIf="selectedMessage.phone" class="text-sm text-gray-500">{{ selectedMessage.phone }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Subject</label>
+          <p class="text-sm text-gray-900">{{ selectedMessage.subject }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date</label>
+          <p class="text-sm text-gray-900">{{ formatDateTime(selectedMessage.createdAt) }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Message</label>
+          <p class="text-sm text-gray-900 mt-1">{{ selectedMessage.message }}</p>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-6">
+          <button (click)="deleteMessage(selectedMessage.id); closeModal()" class="btn-secondary">Delete</button>
+          <button (click)="closeModal()" class="btn-primary">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -79,11 +79,39 @@ export class VehicleService {
 
 async findOne(search: string) {
   if (isUUID(search)) {
-    const vehicle = await this.prisma.vehicle.findUnique({ where: { id: search } });
+    const vehicle = await this.prisma.vehicle.findUnique({ 
+      where: { id: search },
+      include: {
+        reviews: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
     if (!vehicle) {
       throw new NotFoundException('vehicle not found');
     }
-    return vehicle;
+
+    // Calculate review statistics
+    const totalReviews = vehicle.reviews.length;
+    const averageRating = totalReviews > 0 
+      ? vehicle.reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
+      : 0;
+
+    return {
+      ...vehicle,
+      reviewStats: {
+        averageRating: Math.round(averageRating * 10) / 10,
+        totalReviews,
+      },
+    };
   }
   const vehicle = await this.prisma.vehicle.findFirst({
     where: {
@@ -93,11 +121,37 @@ async findOne(search: string) {
         { make: { equals: search, mode: 'insensitive' as const } },
       ],
     },
+    include: {
+      reviews: {
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
   });
   if (!vehicle) {
     throw new NotFoundException('vehicle not found');
   }
-  return vehicle;
+
+  // Calculate review statistics
+  const totalReviews = vehicle.reviews.length;
+  const averageRating = totalReviews > 0 
+    ? vehicle.reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
+    : 0;
+
+  return {
+    ...vehicle,
+    reviewStats: {
+      averageRating: Math.round(averageRating * 10) / 10,
+      totalReviews,
+    },
+  };
 }
 
   

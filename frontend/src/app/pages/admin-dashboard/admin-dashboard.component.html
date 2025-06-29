@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-gray-50">
-  <!-- Header -->
+
   <div class="bg-white shadow">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
@@ -15,20 +15,20 @@
     </div>
   </div>
 
-  <!-- Main Content -->
+
   <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-    <!-- Loading State -->
+ 
     <div *ngIf="isLoading" class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
     </div>
 
-    <!-- Message Display -->
+   
     <div *ngIf="message" 
          [class]="messageType === 'success' ? 'bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6' : 'bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6'">
       {{ message }}
     </div>
 
-    <!-- Dashboard Stats -->
+   
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="p-5">
@@ -155,7 +155,7 @@
                 <option value="GASOLINE">Gasoline</option>
                 <option value="DIESEL">Diesel</option>
                 <option value="ELECTRIC">Electric</option>
-                <option value="HYBRID">Hybrid</option>
+                <option value="HYBRID">Petrol</option>
               </select>
             </div>
             <div>
@@ -194,11 +194,11 @@
                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
             </div>
             
-            <!-- File Upload Section -->
+            
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Image</label>
               <div class="space-y-3">
-                <!-- File Input -->
+               
                 <div class="flex items-center space-x-4">
                   <input type="file" 
                          (change)="onFileSelected($event)" 
@@ -206,7 +206,7 @@
                          class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
                 
-                <!-- Selected File Info -->
+               
                 <div *ngIf="selectedFile" class="bg-green-50 border border-green-200 rounded-md p-3">
                   <div class="flex items-center space-x-2">
                     <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,13 +217,12 @@
                   <p class="text-xs text-green-600 mt-1">Size: {{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
                 </div>
                 
-                <!-- Upload Progress -->
+                <
                 <div *ngIf="isUploading" class="w-full bg-gray-200 rounded-full h-2">
                   <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
                        [style.width.%]="uploadProgress"></div>
                 </div>
-                
-                <!-- Or Divider -->
+               
                 <div class="relative">
                   <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-300"></div>
@@ -233,7 +232,7 @@
                   </div>
                 </div>
                 
-                <!-- Image URL Input (Fallback) -->
+              
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Image URL (Alternative)</label>
                   <input type="url" [(ngModel)]="newVehicle.images" name="images"
@@ -255,7 +254,7 @@
           </form>
         </div>
 
-        <!-- Vehicles List -->
+       
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -303,7 +302,7 @@
       </div>
     </div>
 
-    <!-- Booking Management Section -->
+
     <div class="bg-white shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">Booking Management</h3>
@@ -362,7 +361,7 @@
   </div>
 </div>
 
-<!-- Edit Vehicle Modal -->
+
 <div *ngIf="showEditForm" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
   <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
     <div class="mt-3">
@@ -463,11 +462,11 @@
           </div>
         </div>
         
-        <!-- File Upload Section for Edit -->
+        
         <div class="md:col-span-2">
           <label class="block text-sm font-medium text-gray-700 mb-2">Update Vehicle Image</label>
           <div class="space-y-3">
-            <!-- File Input -->
+          
             <div class="flex items-center space-x-4">
               <input type="file" 
                      (change)="onEditFileSelected($event)" 
@@ -475,7 +474,7 @@
                      class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
             </div>
             
-            <!-- Selected File Info -->
+            
             <div *ngIf="selectedEditFile" class="bg-green-50 border border-green-200 rounded-md p-3">
               <div class="flex items-center space-x-2">
                 <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -486,13 +485,13 @@
               <p class="text-xs text-green-600 mt-1">Size: {{ (selectedEditFile.size / 1024 / 1024).toFixed(2) }} MB</p>
             </div>
             
-            <!-- Upload Progress -->
+
             <div *ngIf="isEditUploading" class="w-full bg-gray-200 rounded-full h-2">
               <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
                    [style.width.%]="uploadProgress"></div>
             </div>
             
-            <!-- Or Divider -->
+           
             <div class="relative">
               <div class="absolute inset-0 flex items-center">
                 <div class="w-full border-t border-gray-300"></div>
@@ -501,8 +500,7 @@
                 <span class="px-2 bg-white text-gray-500">OR</span>
               </div>
             </div>
-            
-            <!-- Image URL Input (Fallback) -->
+  
             <div>
               <label class="block text-sm font-medium text-gray-700">Image URL (Alternative)</label>
               <input type="url" [(ngModel)]="editVehicleData.images" name="editImages"
@@ -513,7 +511,7 @@
           </div>
         </div>
         
-        <!-- Action Buttons -->
+     
         <div class="md:col-span-2 flex justify-end space-x-3">
           <button type="button" (click)="cancelEdit()" 
                   class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">

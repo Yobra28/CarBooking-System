@@ -35,14 +35,14 @@ export class FileUploadService {
   uploadVehicleWithImage(vehicleData: any, file: File): Observable<any> {
     const formData = new FormData();
     
-    // Append vehicle data
+    
     Object.keys(vehicleData).forEach(key => {
       if (vehicleData[key] !== null && vehicleData[key] !== undefined) {
         formData.append(key, vehicleData[key]);
       }
     });
     
-    // Append image file
+   
     if (file) {
       formData.append('image', file);
     }

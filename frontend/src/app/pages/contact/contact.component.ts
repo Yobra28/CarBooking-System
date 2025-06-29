@@ -68,10 +68,9 @@ export class ContactComponent {
           console.log('Contact form submitted successfully:', response);
           this.submitMessage = {
             type: 'success',
-            text: 'Thank you for your message! We will get back to you soon.'
+            text: 'Thank you for your message! We have received your inquiry and sent you a confirmation email. Our team will review your message and get back to you within 24-48 hours.'
           };
           
-          // Reset form
           this.contactForm = {
             firstName: '',
             lastName: '',

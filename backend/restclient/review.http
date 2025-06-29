@@ -1,0 +1,72 @@
+### Review API Tests
+
+### Get all reviews
+GET http://localhost:3000/reviews
+
+### Get reviews for a specific vehicle
+GET http://localhost:3000/reviews/vehicle/{{vehicleId}}
+
+### Get rating statistics for a vehicle
+GET http://localhost:3000/reviews/vehicle/{{vehicleId}}/stats
+
+### Get a specific review
+GET http://localhost:3000/reviews/{{reviewId}}
+
+### Create a new review (requires authentication)
+POST http://localhost:3000/reviews
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "rating": 5,
+  "comment": "Excellent vehicle! Very comfortable and fuel efficient.",
+  "vehicleId": "{{vehicleId}}"
+}
+
+### Create another review with different rating
+POST http://localhost:3000/reviews
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "rating": 4,
+  "comment": "Good vehicle overall, but could use some improvements.",
+  "vehicleId": "{{vehicleId2}}"
+}
+
+### Create a third review
+POST http://localhost:3000/reviews
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "rating": 5,
+  "comment": "Amazing experience! Highly recommended.",
+  "vehicleId": "{{vehicleId3}}"
+}
+
+### Update a review (requires authentication)
+PATCH http://localhost:3000/reviews/{{reviewId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "rating": 4,
+  "comment": "Updated review - still very good but could be better."
+}
+
+### Delete a review (requires authentication)
+DELETE http://localhost:3000/reviews/{{reviewId}}
+Authorization: Bearer {{token}}
+
+### Variables (replace with actual values)
+# @vehicleId = your-vehicle-id-here
+# @vehicleId2 = your-second-vehicle-id-here
+# @vehicleId3 = your-third-vehicle-id-here
+# @reviewId = your-review-id-here
+# @token = your-jwt-token-here
+
+### Sample calculation:
+# If user has 3 reviews with ratings: 5, 4, 5
+# Average rating = (5 + 4 + 5) / 3 = 14 / 3 = 4.67
+# Displayed as: 4.7 (rounded to 1 decimal place) 

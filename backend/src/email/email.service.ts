@@ -141,4 +141,43 @@ export class EmailService {
       };
     }
   }
+
+  async sendContactConfirmationEmail(
+    email: string,
+    firstName: string,
+    lastName: string,
+    subject: string,
+    message: string,
+  ) {
+    try {
+      console.log('Sending contact confirmation email to:', email);
+      
+      const result = await this.mailerService.sendMail({
+        to: email,
+        subject: 'Thank you for contacting us - Car Rental',
+        template: 'contact-confirmation',
+        context: {
+          firstName,
+          lastName,
+          subject,
+          message,
+        },
+      });
+      
+      console.log('Contact confirmation email sent successfully:', result);
+      console.log('Message ID:', result.messageId);
+
+      return {
+        success: true,
+        message: 'Contact confirmation email sent successfully',
+        messageId: result.messageId,
+      };
+    } catch (error) {
+      console.error('Error sending contact confirmation email:', error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
 }

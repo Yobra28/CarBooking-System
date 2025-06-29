@@ -146,6 +146,14 @@
     </div>
   </div>
 
+  <!-- Reviews Section -->
+  <div class="mt-12">
+    <app-review 
+      [vehicleId]="vehicle.id" 
+      (reviewSubmitted)="onReviewSubmitted()">
+    </app-review>
+  </div>
+
   <!-- Back to Vehicles -->
   <div class="mt-12 text-center">
     <a routerLink="/vehicles" class="btn-secondary">

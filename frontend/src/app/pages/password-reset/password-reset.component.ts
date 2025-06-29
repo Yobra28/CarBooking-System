@@ -80,6 +80,12 @@ export class PasswordResetComponent implements OnInit {
       return;
     }
 
+    // Validate that the code is a 6-digit number
+    if (!/^\d{6}$/.test(this.resetCode)) {
+      this.resetError = 'Please enter a valid 6-digit reset code';
+      return;
+    }
+
     if (!this.newPassword) {
       this.resetError = 'Please enter a new password';
       return;
@@ -133,5 +139,12 @@ export class PasswordResetComponent implements OnInit {
 
   resendCode() {
     this.requestResetCode();
+  }
+
+  // Handle code input validation
+  onCodeInput(event: any) {
+    const value = event.target.value;
+    // Remove non-numeric characters and limit to 6 digits
+    this.resetCode = value.replace(/[^0-9]/g, '').slice(0, 6);
   }
 } 

@@ -33,7 +33,7 @@ export interface Booking {
       images: string;
     };
   }[];
-  // For backward compatibility with existing frontend code
+
   vehicle?: {
     id: string;
     name: string;

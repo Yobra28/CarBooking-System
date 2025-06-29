@@ -21,7 +21,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   vehicles: Vehicle[] = [];
   bookings: Booking[] = [];
   
-  // Vehicle management
+
   showAddVehicleForm = false;
   newVehicle: CreateVehicleRequest = {
     name: '',
@@ -40,29 +40,29 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     postalCode: ''
   };
   
-  // File upload
+
   selectedFile: File | null = null;
   isUploading = false;
   uploadProgress = 0;
   
-  // Edit file upload
+  
   selectedEditFile: File | null = null;
   isEditUploading = false;
   
-  // Editing
+
   editingVehicle: Vehicle | null = null;
   editVehicleData: UpdateVehicleRequest = {};
   showEditForm = false;
   
-  // Loading states
+
   isLoading = false;
   isSubmitting = false;
   
-  // Messages
+
   message = '';
   messageType: 'success' | 'error' = 'success';
   
-  // Dashboard stats
+ 
   dashboardStats = {
     totalVehicles: 0,
     availableVehicles: 0,
@@ -109,7 +109,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   loadData() {
     this.isLoading = true;
     
-    // Load vehicles
     const vehicleSub = this.vehicleService.getAllVehicles().subscribe({
       next: (vehicles) => {
         this.vehicles = vehicles;
@@ -125,7 +124,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Load bookings
+ 
     const bookingSub = this.bookingService.getAllBookings().subscribe({
       next: (bookings) => {
         this.bookings = bookings;
@@ -155,24 +154,24 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   private updateDashboardStats() {
     this.dashboardStats = {
       totalVehicles: this.vehicles.length,
-      availableVehicles: this.vehicles.length, // All vehicles are available by default
+      availableVehicles: this.vehicles.length, 
       totalBookings: this.bookings.length,
       pendingBookings: this.bookings.filter(b => b.status === 'PENDING').length,
       totalRevenue: this.bookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0)
     };
   }
 
-  // File Upload Methods
+ 
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Validate file type
+
       if (!file.type.startsWith('image/')) {
         this.showMessage('Please select an image file', 'error');
         return;
       }
       
-      // Validate file size (max 5MB)
+  
       if (file.size > 5 * 1024 * 1024) {
         this.showMessage('File size must be less than 5MB', 'error');
         return;
@@ -224,15 +223,15 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     return this.fileUploadService.uploadFile(this.selectedEditFile);
   }
 
-  // Vehicle Management
+  
   addVehicle() {
     this.isSubmitting = true;
     
     if (this.selectedFile) {
-      // Upload file first, then create vehicle
+      
       this.uploadFile().subscribe({
         next: (uploadResponse) => {
-          // Update the vehicle data with the uploaded image URL
+         
           const vehicleData = { ...this.newVehicle, images: uploadResponse.url };
           
           this.vehicleService.createVehicle(vehicleData).subscribe({
@@ -266,7 +265,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // Create vehicle without image upload
+    
       this.vehicleService.createVehicle(this.newVehicle).subscribe({
         next: (response) => {
           this.vehicles.push(response.data);
@@ -318,10 +317,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     
     if (this.selectedEditFile) {
-      // Upload file first, then update vehicle
+    
       this.uploadEditFile().subscribe({
         next: (uploadResponse) => {
-          // Update the vehicle data with the uploaded image URL
+      
           const vehicleData = { ...this.editVehicleData, images: uploadResponse.url };
           
           this.vehicleService.updateVehicle(this.editingVehicle!.id, vehicleData).subscribe({
@@ -357,7 +356,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // Update vehicle without image upload
+  
       this.vehicleService.updateVehicle(this.editingVehicle.id, this.editVehicleData).subscribe({
         next: (updatedVehicle) => {
           const index = this.vehicles.findIndex(v => v.id === updatedVehicle.id);
@@ -468,7 +467,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   getAvailableVehicles(): number {
-    return this.vehicles.length; // All vehicles are available by default
+    return this.vehicles.length; 
   }
 
   getStatusClass(status: string): string {

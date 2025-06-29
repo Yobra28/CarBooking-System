@@ -1,13 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 
 @Injectable()
 export class ContactService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService
+  ) {}
 
   async create(createContactDto: CreateContactDto) {
-    return this.prisma.contactMessage.create({
+    // Create the contact message in the database
+    const contactMessage = await this.prisma.contactMessage.create({
       data: {
         firstName: createContactDto.firstName,
         lastName: createContactDto.lastName,
@@ -18,6 +23,24 @@ export class ContactService {
         status: 'unread',
       },
     });
+
+    // Send confirmation email to the user
+    try {
+      await this.emailService.sendContactConfirmationEmail(
+        createContactDto.email,
+        createContactDto.firstName,
+        createContactDto.lastName,
+        createContactDto.subject,
+        createContactDto.message,
+      );
+      console.log('Contact confirmation email sent successfully');
+    } catch (error) {
+      console.error('Failed to send contact confirmation email:', error);
+      // Don't throw error here - we still want to save the contact message
+      // even if email sending fails
+    }
+
+    return contactMessage;
   }
 
   async findAll() {

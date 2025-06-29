@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Message - Car Rental</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #dc3545;
+            background-color: #fff5f5;
+        }
+        .header h1 {
+            color: #dc3545;
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .message-details {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .contact-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+        .highlight {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .label {
+            font-weight: bold;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 New Contact Message</h1>
+            <p>A new contact message has been received from the website</p>
+        </div>
+        
+        <div class="content">
+            <p>Hello <span class="highlight">{{agentName}}</span>,</p>
+            
+            <p>A new contact message has been submitted through the Car Rental website contact form. Please review and respond to this inquiry.</p>
+            
+            <div class="message-details">
+                <h3>📋 Message Details</h3>
+                <p><span class="label">From:</span> {{firstName}} {{lastName}}</p>
+                <p><span class="label">Email:</span> {{email}}</p>
+                {{#if phone}}
+                <p><span class="label">Phone:</span> {{phone}}</p>
+                {{/if}}
+                <p><span class="label">Subject:</span> {{subject}}</p>
+                <p><span class="label">Message:</span></p>
+                <div style="background-color: #ffffff; padding: 10px; border-left: 3px solid #007bff; margin: 10px 0;">
+                    {{message}}
+                </div>
+                <p><span class="label">Submitted:</span> {{submittedAt}}</p>
+            </div>
+            
+            <div class="contact-info">
+                <strong>📞 Contact Information:</strong><br>
+                <strong>Name:</strong> {{firstName}} {{lastName}}<br>
+                <strong>Email:</strong> {{email}}<br>
+                {{#if phone}}
+                <strong>Phone:</strong> {{phone}}<br>
+                {{/if}}
+                <strong>Message ID:</strong> {{messageId}}
+            </div>
+            
+            <p><strong>Action Required:</strong></p>
+            <ul>
+                <li>Review the message content</li>
+                <li>Respond to the customer within 24-48 hours</li>
+                <li>Mark the message as 'read' in the admin dashboard</li>
+                <li>Update the message status after responding</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Car Rental Service - Admin Notification</strong></p>
+            <p>This is an automated notification. Please log into the admin dashboard to manage this contact message.</p>
+            <p style="font-size: 12px; color: #999;">
+                Message ID: {{messageId}} | Submitted: {{submittedAt}}
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

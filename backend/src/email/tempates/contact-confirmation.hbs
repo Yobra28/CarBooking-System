@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Confirmation - Car Rental</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+        }
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .message-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+        .highlight {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .contact-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Car Rental Service</h1>
+            <p>Thank you for contacting us!</p>
+        </div>
+        
+        <div class="content">
+            <p>Dear <span class="highlight">{{firstName}} {{lastName}}</span>,</p>
+            
+            <p>Thank you for reaching out to us! We have successfully received your message and appreciate you taking the time to contact Car Rental Service.</p>
+            
+            <div class="message-box">
+                <strong>Your Message Details:</strong><br>
+                <strong>Subject:</strong> {{subject}}<br>
+                <strong>Message:</strong> {{message}}
+            </div>
+            
+            <p>Our team has been notified of your inquiry and will review it carefully. We typically respond to all inquiries within <span class="highlight">24-48 hours</span> during business days.</p>
+            
+            <p>Please note that this is an automated confirmation email. You do not need to reply to this message.</p>
+            
+            <div class="contact-info">
+                <strong>What happens next?</strong><br>
+                • Our customer service team will review your message<br>
+                • You will receive a personalized response via email<br>
+                • If you provided a phone number, we may also contact you directly
+            </div>
+            
+            <p>If you have any urgent matters or need immediate assistance, please don't hesitate to call us directly.</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Car Rental Service</strong></p>
+            <p>📧 info@carrental.com | 📞 +1 (555) 123-4567</p>
+            <p>📍 123 Main Street, City, State 12345</p>
+            <p style="font-size: 12px; color: #999;">
+                This is an automated message. Please do not reply to this email.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

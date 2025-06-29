@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BookingService, Booking } from '../../services/booking.service';
 import { AuthService, User } from '../../services/auth.service';
+import { ReviewService, Review } from '../../services/review.service';
 
 interface DashboardStats {
   totalRentals: number;
@@ -35,6 +36,7 @@ interface RentalHistory {
 export class CustomerDashboardComponent implements OnInit {
   currentUser: User | null = null;
   bookings: Booking[] = [];
+  userReviews: Review[] = [];
   dashboardStats: DashboardStats = {
     totalRentals: 0,
     completedRentals: 0,
@@ -55,7 +57,8 @@ export class CustomerDashboardComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
-    private authService: AuthService
+    private authService: AuthService,
+    private reviewService: ReviewService
   ) {}
 
   ngOnInit() {
@@ -79,7 +82,7 @@ export class CustomerDashboardComponent implements OnInit {
       next: (bookings) => {
         console.log('Received bookings:', bookings);
         this.bookings = bookings;
-        this.updateDashboardStats();
+        this.loadUserReviews();
       },
       error: (error) => {
         console.error('Failed to load bookings:', error);
@@ -87,6 +90,25 @@ export class CustomerDashboardComponent implements OnInit {
       },
       complete: () => {
         this.isLoading = false;
+      }
+    });
+  }
+
+  loadUserReviews() {
+    if (!this.currentUser) {
+      this.updateDashboardStats();
+      return;
+    }
+    
+    // Get reviews for the current user
+    this.reviewService.getUserReviews(this.currentUser.id).subscribe({
+      next: (reviews) => {
+        this.userReviews = reviews;
+        this.updateDashboardStats();
+      },
+      error: (error) => {
+        console.error('Failed to load reviews:', error);
+        this.updateDashboardStats(); // Continue with booking data even if reviews fail
       }
     });
   }
@@ -100,17 +122,24 @@ export class CustomerDashboardComponent implements OnInit {
     // Calculate total spent from all bookings (including cancelled ones)
     const totalSpent = this.bookings.reduce((sum, b) => sum + b.totalPrice, 0);
     
+    // Calculate average rating from user's reviews
+    const averageRating = this.userReviews.length > 0 
+      ? this.reviewService.calculateAverageRating(this.userReviews)
+      : 0;
+    
     console.log('Total bookings:', this.bookings.length);
     console.log('Pending bookings:', pendingBookings.length);
     console.log('Confirmed bookings:', confirmedBookings.length);
     console.log('Completed bookings:', completedBookings.length);
     console.log('Cancelled bookings:', cancelledBookings.length);
     console.log('Total spent:', totalSpent);
+    console.log('User reviews:', this.userReviews.length);
+    console.log('Average rating:', averageRating);
     
     this.dashboardStats = {
       totalRentals: this.bookings.length,
       completedRentals: completedBookings.length,
-      averageRating: completedBookings.length > 0 ? 4.2 : 0, // Mock average rating
+      averageRating: averageRating,
       totalSpent: totalSpent,
       upcomingRentals: confirmedBookings.length + pendingBookings.length
     };
@@ -178,6 +207,11 @@ export class CustomerDashboardComponent implements OnInit {
       .filter(b => b.status === 'COMPLETED')
       .map(b => {
         const firstBookingItem = b.bookingItems?.[0];
+        const vehicleId = firstBookingItem?.vehicle?.id;
+        
+        // Find user's review for this vehicle
+        const userReview = this.userReviews.find(review => review.vehicleId === vehicleId);
+        
         return {
           id: b.id,
           vehicleName: firstBookingItem?.vehicle?.name || 'Unknown Vehicle',
@@ -186,8 +220,8 @@ export class CustomerDashboardComponent implements OnInit {
           endDate: new Date(firstBookingItem?.endDate || b.endDate),
           totalAmount: b.totalPrice,
           status: b.status,
-          rating: 4, // Mock rating
-          review: 'Great experience with this vehicle!' // Mock review
+          rating: userReview?.rating || undefined,
+          review: userReview?.comment || undefined
         };
       });
   }
@@ -215,20 +249,15 @@ export class CustomerDashboardComponent implements OnInit {
   }
 
   cancelBooking(bookingId: string) {
-    if (confirm('Are you sure you want to cancel this booking? This action will notify our agents.')) {
+    if (confirm('Are you sure you want to cancel this booking?')) {
       this.bookingService.cancelBooking(bookingId).subscribe({
-        next: (updatedBooking) => {
-          const index = this.bookings.findIndex(b => b.id === updatedBooking.id);
-          if (index !== -1) {
-            this.bookings[index] = updatedBooking;
-          }
-          this.updateDashboardStats();
-          this.closeModal();
-          this.showMessage('Booking cancelled successfully. Our agents have been notified.', 'success');
+        next: () => {
+          this.showMessage('Booking cancelled successfully', 'success');
+          this.loadData(); // Reload data to reflect changes
         },
         error: (error) => {
-          console.error('Error cancelling booking:', error);
-          this.showMessage('Failed to cancel booking. Please try again.', 'error');
+          console.error('Failed to cancel booking:', error);
+          this.showMessage('Failed to cancel booking', 'error');
         }
       });
     }
@@ -239,32 +268,33 @@ export class CustomerDashboardComponent implements OnInit {
     this.selectedRental = null;
   }
 
-  // Utility methods
   formatDate(date: string | Date | undefined): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
   }
 
   formatCurrency(amount: number): string {
-    return `$${amount.toFixed(2)}`;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
   }
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-      case 'CONFIRMED': return 'bg-blue-100 text-blue-800';
-      case 'CANCELLED': return 'bg-red-100 text-red-800';
-      case 'COMPLETED': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'PENDING': return 'text-yellow-600 bg-yellow-100';
+      case 'CONFIRMED': return 'text-blue-600 bg-blue-100';
+      case 'COMPLETED': return 'text-green-600 bg-green-100';
+      case 'CANCELLED': return 'text-red-600 bg-red-100';
+      case 'REJECTED': return 'text-red-600 bg-red-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
   }
 
   getStatusDescription(status: string): string {
     switch (status) {
-      case 'PENDING': return 'Waiting for agent confirmation';
-      case 'CONFIRMED': return 'Confirmed by agent - ready for pickup';
-      case 'CANCELLED': return 'Booking has been cancelled';
-      case 'COMPLETED': return 'Rental completed successfully';
+      case 'PENDING': return 'Awaiting confirmation';
+      case 'CONFIRMED': return 'Booking confirmed';
+      case 'COMPLETED': return 'Rental completed';
+      case 'CANCELLED': return 'Booking cancelled';
+      case 'REJECTED': return 'Booking rejected';
       default: return 'Unknown status';
     }
   }
@@ -275,9 +305,11 @@ export class CustomerDashboardComponent implements OnInit {
 
   getStarRating(rating: number | undefined): string[] {
     if (!rating) return [];
-    return Array.from({ length: rating }, () => '★').concat(
-      Array.from({ length: 5 - rating }, () => '☆')
-    );
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(i <= rating ? '★' : '☆');
+    }
+    return stars;
   }
 
   get user() {
@@ -297,6 +329,6 @@ export class CustomerDashboardComponent implements OnInit {
   }
 
   getActiveBookings(): number {
-    return this.bookings.filter(b => b.status === 'CONFIRMED').length;
+    return this.bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'PENDING').length;
   }
 } 

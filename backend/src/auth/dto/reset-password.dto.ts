@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsNumber } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Matches } from 'class-validator';
 
 export class RequestPasswordResetDto {
   @IsEmail()
@@ -8,8 +8,9 @@ export class RequestPasswordResetDto {
 
 export class ResetPasswordDto {
   @IsNotEmpty()
-  @IsNumber()
-  code: number;
+  @IsString()
+  @Matches(/^\d{6}$/, { message: 'Code must be exactly 6 digits' })
+  code: string;
 
   @IsString()
   @MinLength(6)

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { VehicleService, Vehicle } from '../../services/vehicle.service';
 import { AuthService } from '../../services/auth.service';
+import { ReviewComponent } from '../../components/review/review.component';
 
 @Component({
   selector: 'app-car-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReviewComponent],
   templateUrl: './car-details.component.html',
   styleUrl: './car-details.component.css'
 })
@@ -66,6 +67,13 @@ export class CarDetailsComponent implements OnInit {
         
         this.router.navigate(['/login'], { queryParams: { returnUrl } });
       }
+    }
+  }
+
+  onReviewSubmitted() {
+    // Reload vehicle data to get updated review statistics
+    if (this.vehicle) {
+      this.loadVehicle(this.vehicle.id);
     }
   }
 

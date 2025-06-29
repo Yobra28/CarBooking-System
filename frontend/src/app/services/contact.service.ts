@@ -44,7 +44,7 @@ export class ContactService {
     });
   }
 
-  // Submit contact form (public endpoint - no auth required)
+
   submitContactForm(contactData: CreateContactMessageDto): Observable<ContactMessage> {
     return this.http.post<ContactMessage>(
       `${this.API_URL}/contact`,
@@ -52,7 +52,7 @@ export class ContactService {
     );
   }
 
-  // Get all contact messages (admin/agent only)
+
   getAllContactMessages(): Observable<ContactMessage[]> {
     return this.http.get<ContactMessage[]>(
       `${this.API_URL}/contact`,
@@ -60,7 +60,7 @@ export class ContactService {
     );
   }
 
-  // Get contact message by ID
+
   getContactMessageById(id: string): Observable<ContactMessage> {
     return this.http.get<ContactMessage>(
       `${this.API_URL}/contact/${id}`,
@@ -68,7 +68,7 @@ export class ContactService {
     );
   }
 
-  // Update contact message status
+
   updateContactMessage(id: string, updateData: UpdateContactMessageDto): Observable<ContactMessage> {
     return this.http.patch<ContactMessage>(
       `${this.API_URL}/contact/${id}`,
@@ -77,7 +77,7 @@ export class ContactService {
     );
   }
 
-  // Delete contact message
+ 
   deleteContactMessage(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
       `${this.API_URL}/contact/${id}`,
@@ -85,7 +85,7 @@ export class ContactService {
     );
   }
 
-  // Get unread messages count
+
   getUnreadMessagesCount(): Observable<{ count: number }> {
     return this.http.get<{ count: number }>(
       `${this.API_URL}/contact/unread/count`,

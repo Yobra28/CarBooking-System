@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit {
   popularVehicles: Vehicle[] = [];
   isLoadingVehicles = false;
   
-  // Search form properties
+ 
   selectedVehicleType = '';
   searchTerm = '';
 
@@ -53,7 +53,6 @@ export class HomeComponent implements OnInit {
     this.isLoadingVehicles = true;
     this.vehicleService.getAllVehicles().subscribe({
       next: (vehicles) => {
-        // Get first 6 vehicles as popular vehicles
         this.popularVehicles = vehicles.slice(0, 6);
       },
       error: (error) => {

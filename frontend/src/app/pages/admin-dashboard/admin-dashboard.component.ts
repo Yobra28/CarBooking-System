@@ -185,8 +185,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   onEditFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
+
+      if (!file.type.startsWith('image/')) { 
         this.showMessage('Please select an image file', 'error');
         return;
       }
@@ -487,7 +487,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     return `$${amount.toFixed(2)}`;
   }
 
-  formatDate(date: string | Date): string {
+  formatDate(date: string | Date | undefined): string {
+    if (!date) return '';
     return new Date(date).toLocaleDateString();
   }
 

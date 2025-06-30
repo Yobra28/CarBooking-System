@@ -1,10 +1,14 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EmailService } from 'src/email/email.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
+// import {User} from '../users/interface';
 
 @Injectable()
 export class BookingService {
@@ -36,10 +40,7 @@ export class BookingService {
   async create(data: CreateBookingDto) {
     console.log('Creating booking with data:', JSON.stringify(data, null, 2));
     
-    // Calculate total price based on days and vehicle prices
     const calculatedTotalPrice = this.calculateTotalPrice(data.vehicles);
-    
-    // Use calculated price if not provided, otherwise use provided price
     const finalTotalPrice = data.totalPrice || calculatedTotalPrice;
     
     console.log('Calculated total price:', calculatedTotalPrice);
@@ -70,7 +71,7 @@ export class BookingService {
               vehicleId: vehicle.vehicleId,
               startDate: vehicle.startDate,
               endDate: vehicle.endDate,
-              price: itemPrice * days, // Store the total price for this item
+              price: itemPrice * days, 
             },
           });
         })
@@ -78,12 +79,24 @@ export class BookingService {
 
       console.log('Created booking items:', bookingItems);
 
-      // Send confirmation email if guest email is provided
-      if (data.guestEmail) {
+      // Send pending approval email to user (registered or guest)
+      let emailToSend = data.guestEmail;
+      let nameToSend = data.guestName || 'Valued Customer';
+      if (data.userId) {
+        const user = await prisma.user.findUnique({
+          where: { id: data.userId },
+          select: { email: true, firstName: true, lastName: true },
+        });
+        if (user && user.email) {
+          emailToSend = user.email;
+          nameToSend = `${user.firstName} ${user.lastName}`.trim();
+        }
+      }
+      if (emailToSend) {
         try {
-          await this.emailService.sendBookingConfirmationEmail(
-            data.guestEmail,
-            data.guestName || 'Valued Customer',
+          await this.emailService.sendBookingPendingEmail(
+            emailToSend,
+            nameToSend,
             {
               id: booking.id,
               startDate: data.vehicles[0]?.startDate,
@@ -93,13 +106,16 @@ export class BookingService {
             }
           );
         } catch (error) {
-          console.error('Failed to send confirmation email:', error);
+          console.error('Failed to send pending booking email:', error);
         }
       }
 
       return {
-        ...booking,
-        bookingItems,
+        message: 'Booking successful! Your booking is pending approval. You will receive a confirmation email once approved.',
+        booking: {
+          ...booking,
+          bookingItems,
+        },
       };
     });
   }
@@ -261,11 +277,10 @@ export class BookingService {
       },
     });
 
-    // Send confirmation email if status changed to CONFIRMED
     if (updateData.status === 'CONFIRMED' && booking.status !== 'CONFIRMED') {
       try {
         const customerEmail = booking.user?.email || booking.guestEmail;
-        const customerName = booking.user 
+        const customerName = booking.user
           ? `${booking.user.firstName} ${booking.user.lastName}`
           : booking.guestName || 'Valued Customer';
 

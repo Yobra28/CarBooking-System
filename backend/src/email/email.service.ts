@@ -180,4 +180,33 @@ export class EmailService {
       };
     }
   }
+
+  async sendBookingPendingEmail(
+    customerEmail: string,
+    customerName: string,
+    bookingDetails: any,
+  ) {
+    try {
+      await this.mailerService.sendMail({
+        to: customerEmail,
+        subject: 'Booking Received - Pending Approval',
+        template: 'booking-pending',
+        context: {
+          customerName,
+          bookingDetails,
+          submissionDate: new Date().toLocaleDateString(),
+        },
+      });
+      return {
+        success: true,
+        message: 'Booking pending approval email sent',
+      };
+    } catch (error) {
+      console.error('Error sending booking pending approval email:', error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
 }

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested, IsEmail, IsDate } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested, IsEmail } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class BookingVehicleDto {

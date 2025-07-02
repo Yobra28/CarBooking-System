@@ -18,7 +18,6 @@ export class VehiclesComponent implements OnInit {
   filteredVehicles: Vehicle[] = [];
   isLoading = false;
   
-  // Filter properties
   selectedType = '';
   selectedPriceRange = '';
   searchTerm = '';
@@ -36,7 +35,6 @@ export class VehiclesComponent implements OnInit {
   ngOnInit() {
     this.loadVehicles();
     
-    // Handle search parameters from URL
     this.route.queryParams.subscribe(params => {
       if (params['search']) {
         this.searchTerm = params['search'];
@@ -44,7 +42,6 @@ export class VehiclesComponent implements OnInit {
       if (params['type']) {
         this.selectedType = params['type'];
       }
-      // Apply filters after loading vehicles
       if (this.vehicles.length > 0) {
         this.filterVehicles();
       }
@@ -58,8 +55,6 @@ export class VehiclesComponent implements OnInit {
         this.vehicles = vehicles;
         this.filteredVehicles = vehicles;
         this.isLoading = false;
-        
-        // Apply filters after vehicles are loaded
         this.filterVehicles();
       },
       error: (error) => {
@@ -72,7 +67,6 @@ export class VehiclesComponent implements OnInit {
   filterVehicles() {
     let filtered = this.vehicles;
 
-    // Filter by search term
     if (this.searchTerm) {
       filtered = filtered.filter(vehicle =>
         vehicle.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -82,14 +76,12 @@ export class VehiclesComponent implements OnInit {
       );
     }
 
-    // Filter by type (category)
     if (this.selectedType) {
       filtered = filtered.filter(vehicle => 
         vehicle.category.toLowerCase() === this.selectedType.toLowerCase()
       );
     }
 
-    // Filter by price range
     if (this.selectedPriceRange) {
       const [min, max] = this.selectedPriceRange.split('-').map(Number);
       filtered = filtered.filter(vehicle => {

@@ -91,7 +91,6 @@ export class UsersService {
 
   async update(id: string, data: UpdateUserDto): Promise<User> {
     try {
-      // Check if user exists
       const existingUser = await this.prismaservice.user.findUnique({
         where: { id },
       });
@@ -100,7 +99,6 @@ export class UsersService {
         throw new NotFoundException(`User with id ${id} not found`);
       }
 
-      // Check for email conflicts if email is being updated
       if (data.email && data.email !== existingUser.email) {
         const emailConflict = await this.prismaservice.user.findUnique({
           where: { email: data.email },
@@ -112,7 +110,6 @@ export class UsersService {
       }
 
     
-      // Hash password if provided
       let hashedPassword: string | undefined;
       if (data.password) {
         const saltRounds = 10;
@@ -144,7 +141,6 @@ export class UsersService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   async findById(id: string) {
     return this.prismaservice.user.findUnique({
       where: { id },
@@ -159,11 +155,5 @@ export class UsersService {
       },
     });
   }
-
-//   async findByEmail(email: string) {
-//     return this.prisma.user.findUnique({ where: { email } });
-//   }
-
-
 
 }

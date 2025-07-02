@@ -1,6 +1,5 @@
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
-    <!-- Header -->
     <div class="text-center">
       <div class="mx-auto h-12 w-12 bg-blue-600 rounded-full flex items-center justify-center mb-4">
         <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -11,8 +10,6 @@
       <p class="mt-2 text-sm text-gray-600">
         Sign in to your account to continue
       </p>
-      
-      <!-- Booking Redirect Message -->
       <div *ngIf="returnUrl" class="mt-4 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg">
         <div class="flex items-center">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,11 +19,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Login Form -->
     <div class="bg-white rounded-2xl shadow-xl p-8">
       <form (ngSubmit)="onSubmit()" class="space-y-6">
-        <!-- Email Field -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
             Email address
@@ -48,7 +42,6 @@
             >
           </div>
         </div>
-
        
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
@@ -84,7 +77,6 @@
             </button>
           </div>
         </div>
-
        
         <div class="flex items-center justify-between">
           <div class="flex items-center">
@@ -104,7 +96,6 @@
             </a>
           </div>
         </div>
-
         <div>
           <button 
             type="submit" 
@@ -116,13 +107,10 @@
             <span *ngIf="isLoading">Signing in...</span>
           </button>
         </div>
-
         <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           {{ errorMessage }}
         </div>
       </form>
-
-      
       <div class="mt-6">
         <div class="relative">
           <div class="absolute inset-0 flex items-center">
@@ -132,7 +120,6 @@
             <span class="px-2 bg-white text-gray-500">Or continue with</span>
           </div>
         </div>
-
         <div class="mt-6 grid grid-cols-2 gap-3">
           <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
             <svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -143,7 +130,6 @@
             </svg>
             <span class="ml-2">Google</span>
           </button>
-
           <button class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -152,7 +138,6 @@
           </button>
         </div>
       </div>
-
      
       <div class="mt-6 text-center">
         <p class="text-sm text-gray-600">

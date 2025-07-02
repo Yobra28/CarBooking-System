@@ -29,7 +29,6 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Get return URL from query parameters
     this.route.queryParams.subscribe(params => {
       this.returnUrl = params['returnUrl'] || '';
     });
@@ -41,7 +40,6 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
-        // If there's a return URL, navigate to it, otherwise use role-based redirect
         if (this.returnUrl) {
           this.router.navigateByUrl(this.returnUrl);
         } else {

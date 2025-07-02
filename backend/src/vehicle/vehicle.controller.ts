@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
 import {
   Controller,
   Post,
@@ -92,12 +90,10 @@ export class VehicleController {
   ): Promise<{ data: Vehicle; message: string }> {
     try {
       let imageUrl = createVehicleDto.images;
-      // Upload image to Cloudinary if provided
       if (image) {
         const uploadResult = await this.cloudinaryService.uploadImage(image);
         imageUrl = uploadResult.secure_url;
       }
-      // Create vehicle with the uploaded image URL
       const vehicleData = { ...createVehicleDto, images: imageUrl };
       const vehicle = await this.vehicleService.create(vehicleData);
       return {

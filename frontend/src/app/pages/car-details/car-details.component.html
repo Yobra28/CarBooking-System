@@ -1,4 +1,4 @@
-<!-- Loading State -->
+
 <div *ngIf="isLoading" class="container-max py-12">
   <div class="text-center">
     <div class="spinner mx-auto mb-4"></div>
@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<!-- Error State -->
+
 <div *ngIf="errorMessage && !isLoading" class="container-max py-12">
   <div class="text-center">
     <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,9 +20,9 @@
   </div>
 </div>
 
-<!-- Vehicle Details -->
+
 <div *ngIf="vehicle && !isLoading" class="container-max py-8">
-  <!-- Breadcrumb -->
+
   <nav class="mb-8">
     <ol class="flex items-center space-x-2 text-sm text-gray-600">
       <li><a routerLink="/" class="hover:text-blue-600">Home</a></li>
@@ -34,7 +34,7 @@
   </nav>
 
   <div class="grid lg:grid-cols-2 gap-12">
-    <!-- Vehicle Images -->
+   
     <div>
       <div class="relative overflow-hidden rounded-2xl mb-4">
         <img 
@@ -58,18 +58,17 @@
       </div>
     </div>
 
-    <!-- Vehicle Information -->
+
     <div>
       <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ vehicle.name }}</h1>
         <p class="text-xl text-gray-600 mb-4">{{ vehicle.make }} {{ vehicle.model }} - {{ vehicle.category }}</p>
         
-        <!-- Price -->
+
         <div class="text-3xl font-bold text-blue-600 mb-6">
           ${{ vehicle.pricePerDay }}/day
         </div>
 
-        <!-- Availability Status -->
         <div class="mb-6">
           <div class="flex items-center space-x-2">
             <div class="w-3 h-3 rounded-full" [ngClass]="isVehicleAvailable() ? 'bg-green-500' : 'bg-red-500'"></div>
@@ -79,7 +78,6 @@
           </div>
         </div>
 
-        <!-- Book Button -->
         <div class="mb-6">
           <button 
             (click)="bookVehicle()" 
@@ -89,8 +87,7 @@
           >
             {{ isVehicleAvailable() ? 'Book This Vehicle' : 'Currently Unavailable' }}
           </button>
-          
-          <!-- Login reminder for non-authenticated users -->
+         
           <div *ngIf="!authService.isAuthenticated() && isVehicleAvailable()" 
                class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
             <p class="text-sm text-blue-700">
@@ -103,7 +100,7 @@
         </div>
       </div>
 
-      <!-- Vehicle Description -->
+  
       <div class="border-t pt-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Description</h3>
         <p class="text-gray-700">{{ vehicle.category }} - {{ vehicle.transmission }} transmission, {{ vehicle.fuelType }} fuel</p>
@@ -111,7 +108,6 @@
     </div>
   </div>
 
-  <!-- Detailed Information -->
   <div class="mt-12 border-t pt-8">
     <h2 class="text-2xl font-bold text-gray-900 mb-6">Vehicle Details</h2>
     
@@ -146,7 +142,7 @@
     </div>
   </div>
 
-  <!-- Reviews Section -->
+
   <div class="mt-12">
     <app-review 
       [vehicleId]="vehicle.id" 
@@ -154,7 +150,7 @@
     </app-review>
   </div>
 
-  <!-- Back to Vehicles -->
+
   <div class="mt-12 text-center">
     <a routerLink="/vehicles" class="btn-secondary">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/require-await */
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { PrismaService } from '../prisma/prisma.service';
@@ -19,7 +18,7 @@ export class EmailService {
     vehicleName: string,
   ) {
     try {
-      // Get all agents
+      
       const agents = await this.prisma.user.findMany({
         where: {
           role: 'AGENT',
@@ -32,7 +31,7 @@ export class EmailService {
         },
       });
 
-      // Send actual emails to all agents
+     
       const emailPromises = agents.map(agent =>
         this.mailerService.sendMail({
           to: agent.email,
@@ -221,7 +220,7 @@ export class EmailService {
     createdAt: Date;
   }) {
     try {
-      // Get all admins and agents
+   
       const users = await this.prisma.user.findMany({
         where: {
           role: { in: ['ADMIN', 'AGENT'] },
@@ -282,7 +281,7 @@ export class EmailService {
     phone?: string;
   }) {
     try {
-      // Get all admins and agents
+      
       const users = await this.prisma.user.findMany({
         where: {
           role: { in: ['ADMIN', 'AGENT'] },

@@ -10,7 +10,6 @@
       </a>
     </p>
     
-    <!-- Booking Redirect Message -->
     <div *ngIf="returnUrl" class="mt-4 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg">
       <div class="flex items-center">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,17 +23,12 @@
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
       <form class="space-y-6" (ngSubmit)="onSubmit()">
-        <!-- Error Message -->
         <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           {{ errorMessage }}
         </div>
-
-        <!-- Success Message -->
         <div *ngIf="successMessage" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
           {{ successMessage }}
         </div>
-
-        <!-- First Name -->
         <div>
           <label for="firstName" class="block text-sm font-medium text-gray-700">
             First Name
@@ -50,8 +44,6 @@
             />
           </div>
         </div>
-
-        <!-- Last Name -->
         <div>
           <label for="lastName" class="block text-sm font-medium text-gray-700">
             Last Name
@@ -67,8 +59,6 @@
             />
           </div>
         </div>
-
-        <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">
             Email address
@@ -85,8 +75,6 @@
             />
           </div>
         </div>
-
-        <!-- Phone -->
         <div>
           <label for="phone" class="block text-sm font-medium text-gray-700">
             Phone Number (Optional)
@@ -101,8 +89,6 @@
             />
           </div>
         </div>
-
-        <!-- Password -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">
             Password
@@ -119,8 +105,6 @@
             />
           </div>
         </div>
-
-        <!-- Confirm Password -->
         <div>
           <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
             Confirm Password
@@ -137,7 +121,6 @@
             />
           </div>
         </div>
-
         <div>
           <button
             type="submit"
@@ -154,7 +137,6 @@
           </button>
         </div>
       </form>
-
       <div class="mt-6">
         <div class="relative">
           <div class="absolute inset-0 flex items-center">
@@ -164,7 +146,6 @@
             <span class="px-2 bg-white text-gray-500">Already have an account?</span>
           </div>
         </div>
-
         <div class="mt-6">
           <a
             [routerLink]="['/login']"

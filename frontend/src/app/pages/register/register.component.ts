@@ -34,7 +34,6 @@ export class RegisterComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Get return URL from query parameters
     this.route.queryParams.subscribe(params => {
       this.returnUrl = params['returnUrl'] || '';
     });
@@ -45,14 +44,12 @@ export class RegisterComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // Validate passwords match
     if (this.registerData.password !== this.confirmPassword) {
       this.errorMessage = 'Passwords do not match';
       this.isLoading = false;
       return;
     }
 
-    // Validate password length
     if (this.registerData.password.length < 6) {
       this.errorMessage = 'Password must be at least 6 characters long';
       this.isLoading = false;
@@ -63,7 +60,6 @@ export class RegisterComponent implements OnInit {
       next: (response) => {
         this.successMessage = 'Registration successful! Redirecting...';
         setTimeout(() => {
-          // If there's a return URL, navigate to it, otherwise use role-based redirect
           if (this.returnUrl) {
             this.router.navigateByUrl(this.returnUrl);
           } else {

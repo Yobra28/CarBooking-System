@@ -73,13 +73,6 @@ export class AuthService {
     });
 
  
-    // try {
-    //   await this.emailService.sendWelcomeEmail(user.email, user.firstName);
-    // } catch (error) {
-    //   console.log('Email sending failed, but registration successful:', error.message);
-    // }
-
-   
     const token = this.generateToken(user.id, user.email, mapPrismaRoleToCustomRole(user.role));
 
     return {
@@ -170,7 +163,6 @@ export class AuthService {
   async resetPassword(dto: ResetPasswordDto) {
     const { code, newPassword } = dto;
 
-    // Convert string code to number for database query
     const numericCode = parseInt(code, 10);
     
     const resetRecord = await this.prisma.passwordReset.findFirst({
@@ -185,16 +177,13 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired reset code');
     }
 
-    // Hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-    // Update user password
     await this.prisma.user.update({
       where: { email: resetRecord.email },
       data: { password: hashedPassword },
     });
 
-    // Mark reset code as used
     await this.prisma.passwordReset.update({
       where: { id: resetRecord.id },
       data: { used: true },

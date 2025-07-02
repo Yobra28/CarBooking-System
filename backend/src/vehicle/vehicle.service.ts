@@ -99,7 +99,6 @@ async findOne(search: string) {
       throw new NotFoundException('vehicle not found');
     }
 
-    // Calculate review statistics
     const totalReviews = vehicle.reviews.length;
     const averageRating = totalReviews > 0 
       ? vehicle.reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
@@ -139,7 +138,6 @@ async findOne(search: string) {
     throw new NotFoundException('vehicle not found');
   }
 
-  // Calculate review statistics
   const totalReviews = vehicle.reviews.length;
   const averageRating = totalReviews > 0 
     ? vehicle.reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 

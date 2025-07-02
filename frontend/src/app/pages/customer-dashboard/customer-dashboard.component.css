@@ -1,4 +1,4 @@
-/* Customer Dashboard specific styles */
+
 .dashboard-card {
   transition: transform 0.2s ease-in-out;
 }
@@ -11,7 +11,7 @@
   backdrop-filter: blur(4px);
 }
 
-/* Custom scrollbar for tables */
+
 .overflow-x-auto::-webkit-scrollbar {
   height: 8px;
 }
@@ -30,7 +30,6 @@
   background: #94a3b8;
 }
 
-/* Status indicators */
 .status-indicator {
   width: 8px;
   height: 8px;
@@ -51,7 +50,7 @@
   background-color: #ef4444;
 }
 
-/* Loading spinner */
+
 .spinner {
   border: 2px solid #f3f4f6;
   border-top: 2px solid #3b82f6;
@@ -66,7 +65,6 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive table */
 @media (max-width: 768px) {
   .table-responsive {
     display: block;
@@ -76,7 +74,7 @@
   }
 }
 
-/* Tab animations */
+
 .tab-content {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -92,7 +90,7 @@
   }
 }
 
-/* Modal animations */
+
 .modal-enter {
   animation: modalEnter 0.3s ease-out;
 }
@@ -108,7 +106,7 @@
   }
 }
 
-/* Rental history styles */
+
 .rental-item {
   transition: all 0.2s ease-in-out;
 }
@@ -129,7 +127,7 @@
   border-left: 4px solid #ef4444;
 }
 
-/* Star rating styles */
+
 .star-rating {
   display: inline-flex;
   align-items: center;
@@ -140,7 +138,7 @@
   height: 16px;
 }
 
-/* Profile section styles */
+
 .profile-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -162,7 +160,7 @@
   margin-bottom: 1rem;
 }
 
-/* Empty state styles */
+
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
@@ -175,7 +173,7 @@
   margin: 0 auto 1rem;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 640px) {
   .rental-item {
     flex-direction: column;

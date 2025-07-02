@@ -12,7 +12,7 @@
   </header>
 
   <div class="container-max py-8">
-    <!-- Stats Cards -->
+   
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
@@ -71,7 +71,7 @@
       </div>
     </div>
 
-    <!-- Navigation Tabs -->
+   
     <div class="mb-8">
       <nav class="flex space-x-8 border-b border-gray-200">
         <button 
@@ -108,9 +108,9 @@
       </nav>
     </div>
 
-    <!-- Overview Tab -->
+   
     <div *ngIf="activeTab === 'overview'">
-      <!-- Upcoming Rentals -->
+      
       <div class="bg-white rounded-lg shadow mb-8">
         <div class="px-6 py-4 border-b border-gray-200">
           <h3 class="text-lg font-medium text-gray-900">Upcoming Rentals</h3>
@@ -124,7 +124,7 @@
             <a routerLink="/vehicles" class="btn-primary mt-4">Book a Vehicle</a>
           </div>
 
-          <!-- Pending Rentals -->
+          
           <div *ngIf="getPendingRentals().length > 0">
             <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
               <svg class="w-4 h-4 text-yellow-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +154,7 @@
             </div>
           </div>
 
-          <!-- Confirmed Rentals -->
+          
           <div *ngIf="getConfirmedRentals().length > 0">
             <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
               <svg class="w-4 h-4 text-blue-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,7 +186,7 @@
         </div>
       </div>
 
-      <!-- Recent Rentals -->
+      
       <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
           <h3 class="text-lg font-medium text-gray-900">Recent Rentals</h3>
@@ -221,7 +221,7 @@
       </div>
     </div>
 
-    <!-- Upcoming Rentals Tab -->
+    
     <div *ngIf="activeTab === 'upcoming'">
       <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
@@ -236,7 +236,7 @@
             <a routerLink="/vehicles" class="btn-primary mt-4">Book a Vehicle</a>
           </div>
 
-          <!-- Pending Rentals -->
+         
           <div *ngIf="getPendingRentals().length > 0">
             <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center">
               <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -275,7 +275,7 @@
             </div>
           </div>
 
-          <!-- Confirmed Rentals -->
+          
           <div *ngIf="getConfirmedRentals().length > 0">
             <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center">
               <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -315,14 +315,14 @@
       </div>
     </div>
 
-    <!-- Rental History Tab -->
+  
     <div *ngIf="activeTab === 'history'">
       <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
           <h3 class="text-lg font-medium text-gray-900">Rental History</h3>
         </div>
         <div class="p-6">
-          <!-- Completed Rentals -->
+         
           <div *ngIf="getCompletedRentals().length > 0">
             <h4 class="text-md font-medium text-gray-900 mb-4">Completed Rentals</h4>
             <div *ngFor="let rental of getCompletedRentals()" class="border rounded-lg p-6 mb-4">
@@ -355,7 +355,7 @@
             </div>
           </div>
 
-          <!-- Cancelled Rentals -->
+        
           <div *ngIf="getCancelledRentals().length > 0">
             <h4 class="text-md font-medium text-gray-900 mb-4 mt-8">Cancelled Rentals</h4>
             <div *ngFor="let rental of getCancelledRentals()" class="border rounded-lg p-6 mb-4 bg-gray-50">
@@ -378,7 +378,6 @@
             </div>
           </div>
 
-          <!-- No rentals message -->
           <div *ngIf="getCompletedRentals().length === 0 && getCancelledRentals().length === 0" class="text-center py-8">
             <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -390,7 +389,7 @@
       </div>
     </div>
 
-    <!-- Profile Tab -->
+ 
     <div *ngIf="activeTab === 'profile'">
       <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
@@ -428,7 +427,7 @@
   </div>
 </div>
 
-<!-- Rental Details Modal -->
+
 <div *ngIf="showRentalModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
   <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
     <div class="mt-3">

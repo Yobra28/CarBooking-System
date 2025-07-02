@@ -1,5 +1,9 @@
-### Review API Tests
+@token = 
+@vehicleId =
+@vehicleId2 =
+@vehicleId3 =
 
+@reviewId =
 ### Get all reviews
 GET http://localhost:3000/reviews
 
@@ -64,7 +68,7 @@ Authorization: Bearer {{token}}
 # @vehicleId2 = your-second-vehicle-id-here
 # @vehicleId3 = your-third-vehicle-id-here
 # @reviewId = your-review-id-here
-# @token = your-jwt-token-here
+
 
 ### Sample calculation:
 # If user has 3 reviews with ratings: 5, 4, 5

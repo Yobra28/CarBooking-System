@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { VehicleService, Vehicle } from '../../services/vehicle.service';
 import { AuthService } from '../../services/auth.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-vehicles',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './vehicles.component.html',
   styleUrl: './vehicles.component.css'
 })
@@ -21,6 +22,10 @@ export class VehiclesComponent implements OnInit {
   selectedType = '';
   selectedPriceRange = '';
   searchTerm = '';
+
+  showConfirmDialog = false;
+  confirmMessage = '';
+  vehicleToDelete: Vehicle | null = null;
 
   constructor(
     private vehicleService: VehicleService,
@@ -131,5 +136,27 @@ export class VehiclesComponent implements OnInit {
 
   isVehiclePopular(vehicle: Vehicle): boolean {
     return vehicle.pricePerDay < 60;
+  }
+
+  confirmDelete(vehicle: Vehicle) {
+    this.confirmMessage = `Are you sure you want to delete ${vehicle.make} ${vehicle.model}?`;
+    this.vehicleToDelete = vehicle;
+    this.showConfirmDialog = true;
+  }
+
+  onDialogConfirmed(confirmed: boolean) {
+    if (confirmed && this.vehicleToDelete) {
+      this.vehicleService.deleteVehicle(this.vehicleToDelete.id).subscribe({
+        next: () => {
+          this.vehicles = this.vehicles.filter(v => v.id !== this.vehicleToDelete!.id);
+          this.filteredVehicles = this.filteredVehicles.filter(v => v.id !== this.vehicleToDelete!.id);
+        },
+        error: (error) => {
+          console.error('Failed to delete vehicle:', error);
+        }
+      });
+    }
+    this.showConfirmDialog = false;
+    this.vehicleToDelete = null;
   }
 } 

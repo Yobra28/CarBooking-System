@@ -18,7 +18,18 @@ export class HomeComponent implements OnInit {
   popularVehicles: Vehicle[] = [];
   isLoadingVehicles = false;
   
- 
+  images: string[] = [
+    'https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg',
+    'https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg',
+    'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg',
+    'https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg'
+  ];
+
+  currentImageIndex = 0;
+  currentImage = this.images[0];
+  isVisible = true;
+
+  
   selectedVehicleType = '';
   searchTerm = '';
 
@@ -31,6 +42,15 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.loadFeaturedVehicles();
     this.loadPopularVehicles();
+    setInterval(() => {
+      this.isVisible = false;
+
+      setTimeout(() => {
+        this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+        this.currentImage = this.images[this.currentImageIndex];
+        this.isVisible = true;
+      }, 500); 
+    }, 3000); 
   }
 
   loadFeaturedVehicles() {

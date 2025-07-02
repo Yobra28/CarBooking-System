@@ -8,11 +8,12 @@ import { AuthService, User } from '../../services/auth.service';
 import { FileUploadService } from '../../services/file-upload.service';
 import { Subscription } from 'rxjs';
 import { Observable } from 'rxjs';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
@@ -70,6 +71,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     pendingBookings: 0,
     totalRevenue: 0
   };
+
+  showConfirmDialog = false;
+  confirmMessage = '';
+  vehicleToDelete: string | null = null;
 
   private subscriptions: Subscription[] = [];
 
@@ -383,10 +388,16 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   deleteVehicle(vehicleId: string) {
-    if (confirm('Are you sure you want to delete this vehicle?')) {
-      this.vehicleService.deleteVehicle(vehicleId).subscribe({
+    this.confirmMessage = `Are you sure you want to delete this vehicle?`;
+    this.vehicleToDelete = vehicleId;
+    this.showConfirmDialog = true;
+  }
+
+  onDialogConfirmed(confirmed: boolean) {
+    if (confirmed && this.vehicleToDelete) {
+      this.vehicleService.deleteVehicle(this.vehicleToDelete).subscribe({
         next: () => {
-          this.vehicles = this.vehicles.filter(v => v.id !== vehicleId);
+          this.vehicles = this.vehicles.filter(v => v.id !== this.vehicleToDelete);
           this.updateDashboardStats();
           this.showMessage('Vehicle deleted successfully', 'success');
         },
@@ -400,6 +411,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         }
       });
     }
+    this.showConfirmDialog = false;
+    this.vehicleToDelete = null;
   }
 
   cancelEdit() {
@@ -495,5 +508,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   logout() {
     this.authService.logout();
     this.router.navigate(['/']);
+  }
+
+  confirmDelete(vehicleId: string, vehicleName: string) {
+    this.confirmMessage = `Are you sure you want to delete ${vehicleName}?`;
+    this.vehicleToDelete = vehicleId;
+    this.showConfirmDialog = true;
   }
 } 

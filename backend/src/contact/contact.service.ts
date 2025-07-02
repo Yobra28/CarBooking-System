@@ -40,6 +40,24 @@ export class ContactService {
       // even if email sending fails
     }
 
+    // Send notification email to all admins and agents
+    try {
+      await this.emailService.sendContactNotificationToAdminsAndAgents({
+        id: contactMessage.id,
+        firstName: contactMessage.firstName,
+        lastName: contactMessage.lastName,
+        email: contactMessage.email,
+        phone: contactMessage.phone ?? undefined,
+        subject: contactMessage.subject,
+        message: contactMessage.message,
+        createdAt: contactMessage.createdAt,
+      });
+      console.log('Contact notification email sent to admins/agents');
+    } catch (error) {
+      console.error('Failed to send contact notification email:', error);
+      // Don't throw error here - we still want to save the contact message
+    }
+
     return contactMessage;
   }
 

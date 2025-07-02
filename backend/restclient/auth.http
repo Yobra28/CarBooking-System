@@ -41,3 +41,13 @@ Content-Type: application/json
 ###
 GET http://localhost:3000/booking
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Mzk4NzE2Yy03NTM3LTQ0YjItODJlMC0xMGU3ZTNmY2RhMTkiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTExMTQ2NzYsImV4cCI6MTc1MTExNDY3Nn0.VNhpYl9kHRtMP7-B4ZmfllKgQeBcE8eBoqLAaWvXvbk
+
+
+
+### Test Authentication 
+GET http://localhost:3000/auth/test
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Mzk4NzE2Yy03NTM3LTQ0YjItODJlMC0xMGU3ZTNmY2RhMTkiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTEzNTYyNDEsImV4cCI6MTc1MTQ0MjY0MX0.NS8St3JQxVoLy7uqwn6w6huziJTwsozgLIBSy3BGpnc
+
+### Test Bookings 
+GET http://localhost:3000/booking
+Authorization: Bearer YOUR_TOKEN 

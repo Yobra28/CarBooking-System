@@ -96,11 +96,15 @@ export class BookingService {
         try {
           await this.emailService.sendBookingPendingEmail(
             emailToSend,
-            nameToSend,
+            nameToSend || '',
             {
               id: booking.id,
-              startDate: data.vehicles[0]?.startDate,
-              endDate: data.vehicles[0]?.endDate,
+              startDate: ((data.vehicles[0]?.startDate instanceof Date)
+                ? data.vehicles[0]?.startDate.toISOString()
+                : data.vehicles[0]?.startDate) || '',
+              endDate: ((data.vehicles[0]?.endDate instanceof Date)
+                ? data.vehicles[0]?.endDate.toISOString()
+                : data.vehicles[0]?.endDate) || '',
               totalPrice: finalTotalPrice,
               status: booking.status,
             }
@@ -108,6 +112,32 @@ export class BookingService {
         } catch (error) {
           console.error('Failed to send pending booking email:', error);
         }
+      }
+
+      // Send notification email to all admins and agents
+      try {
+        await this.emailService.sendBookingNotificationToAdminsAndAgents(
+          {
+            id: booking.id,
+            startDate: ((data.vehicles[0]?.startDate instanceof Date)
+              ? data.vehicles[0]?.startDate.toISOString()
+              : data.vehicles[0]?.startDate) || '',
+            endDate: ((data.vehicles[0]?.endDate instanceof Date)
+              ? data.vehicles[0]?.endDate.toISOString()
+              : data.vehicles[0]?.endDate) || '',
+            totalPrice: finalTotalPrice,
+            status: booking.status,
+            createdAt: booking.createdAt,
+          },
+          {
+            name: nameToSend || '',
+            email: emailToSend || '',
+            phone: data.guestPhone ?? undefined,
+          }
+        );
+        console.log('Booking notification email sent to admins/agents');
+      } catch (error) {
+        console.error('Failed to send booking notification email:', error);
       }
 
       return {

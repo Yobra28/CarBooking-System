@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Booking Notification - Car Rental</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+            background-color: #f0f8ff;
+        }
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .booking-details {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .customer-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+        .highlight {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .label {
+            font-weight: bold;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 New Booking Received</h1>
+            <p>A new vehicle booking has been submitted</p>
+        </div>
+        
+        <div class="content">
+            <p>Hello <span class="highlight">{{adminName}}</span>,</p>
+            <p>A new booking has been made on the Car Rental platform. Please review and process this booking as soon as possible.</p>
+            <div class="booking-details">
+                <h3>📋 Booking Details</h3>
+                <p><span class="label">Booking ID:</span> {{booking.id}}</p>
+                <p><span class="label">Start Date:</span> {{booking.startDate}}</p>
+                <p><span class="label">End Date:</span> {{booking.endDate}}</p>
+                <p><span class="label">Total Price:</span> ${{booking.totalPrice}}</p>
+                <p><span class="label">Status:</span> {{booking.status}}</p>
+            </div>
+            <div class="customer-info">
+                <strong>👤 Customer Information:</strong><br>
+                <strong>Name:</strong> {{customer.name}}<br>
+                <strong>Email:</strong> {{customer.email}}<br>
+                {{#if customer.phone}}
+                <strong>Phone:</strong> {{customer.phone}}<br>
+                {{/if}}
+            </div>
+            <p><strong>Action Required:</strong></p>
+            <ul>
+                <li>Review the booking details</li>
+                <li>Approve or reject the booking in the admin dashboard</li>
+                <li>Contact the customer if more information is needed</li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p><strong>Car Rental Service - Admin Notification</strong></p>
+            <p>This is an automated notification. Please log into the admin dashboard to manage this booking.</p>
+            <p style="font-size: 12px; color: #999;">
+                Booking ID: {{booking.id}} | Submitted: {{submittedAt}}
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

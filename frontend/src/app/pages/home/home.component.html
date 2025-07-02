@@ -1,4 +1,4 @@
- <section class="relative bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
+ <section class="relative bg-gray-300 to-indigo-100 overflow-hidden">
   <div class="absolute inset-0 bg-black opacity-10"></div>
   <div class="relative container-max section-padding">
     <div class="grid lg:grid-cols-2 gap-12 items-center">
@@ -78,12 +78,21 @@
       
     
       <div class="relative">
-        <div class="relative z-10">
-          <img src="https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg" alt="Luxury Car" class="rounded-2xl shadow-2xl">
-        </div>
-        <div class="absolute -top-4 -right-4 w-72 h-72 bg-blue-200 rounded-full opacity-20"></div>
-        <div class="absolute -bottom-4 -left-4 w-48 h-48 bg-yellow-200 rounded-full opacity-20"></div>
-      </div>
+  <div class="relative z-10">
+    <img
+  [src]="currentImage"
+  class="rounded-2xl shadow-2xl transition-all duration-1000 transform"
+  [class.opacity-100]="isVisible"
+  [class.opacity-0]="!isVisible"
+  [class.scale-100]="isVisible"
+  [class.scale-95]="!isVisible"
+/>
+
+  </div>
+
+  <div class="absolute -top-4 -right-4 w-72 h-72 bg-blue-200 rounded-full opacity-20"></div>
+  <div class="absolute -bottom-4 -left-4 w-48 h-48 bg-yellow-200 rounded-full opacity-20"></div>
+</div>
     </div>
   </div>
 </section>

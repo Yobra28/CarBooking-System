@@ -111,14 +111,14 @@
             <span *ngIf="isSubmitting">Sending...</span>
           </button>
           
-          <!-- Success/Error Messages -->
+    
           <div *ngIf="submitMessage" class="p-4 rounded-lg" [ngClass]="submitMessage.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'">
             {{ submitMessage.text }}
           </div>
         </form>
       </div>
       
-      <!-- Contact Information -->
+      
       <div>
         <h2 class="text-3xl font-bold text-gray-900 mb-6">Get in Touch</h2>
         <p class="text-lg text-gray-600 mb-8">
@@ -126,7 +126,7 @@
         </p>
         
         <div class="space-y-6">
-          <!-- Address -->
+          
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,15 +136,18 @@
             </div>
             <div>
               <h3 class="text-lg font-semibold text-gray-900 mb-2">Our Location</h3>
-              <p class="text-gray-600">
-                123 Main Street<br>
-                Nairobi, Kenya<br>
-                P.O. Box 12345
-              </p>
+              <div class="map-container">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.8354345093747!2d144.953735315904!3d-37.8162797420217!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d43f1f8c3fb%3A0x5045675218ce6e0!2sMelbourne%20VIC%2C%20Australia!5e0!3m2!1sen!2sus!4v1719500000000!5m2!1sen!2sus"
+                  allowfullscreen=""
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+              </div>
             </div>
           </div>
           
-          <!-- Phone -->
+          
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +163,7 @@
             </div>
           </div>
           
-          <!-- Email -->
+          
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,7 +179,7 @@
             </div>
           </div>
           
-          <!-- Business Hours -->
+        
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,7 +197,7 @@
           </div>
         </div>
         
-        <!-- Social Media -->
+        
         <div class="mt-8">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Follow Us</h3>
           <div class="flex space-x-4">
@@ -220,7 +223,7 @@
   </div>
 </section>
 
-<!-- Map Section -->
+
 <section class="section-padding bg-gray-50">
   <div class="container-max">
     <div class="text-center mb-12">
@@ -235,15 +238,14 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
           </svg>
-          <p class="text-gray-600">Interactive map will be integrated here</p>
-          <p class="text-sm text-gray-500 mt-2">123 Main Street, Nairobi, Kenya</p>
+         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8170146077487!2d36.81601450911009!3d-1.283670335614882!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f10d15f267d71%3A0x31dcba80c843dcc0!2sKoinange%20St%2C%20Nairobi!5e0!3m2!1sen!2ske!4v1751316022623!5m2!1sen!2ske" width="1300" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FAQ Section -->
+
 <section class="section-padding bg-white">
   <div class="container-max">
     <div class="text-center mb-12">

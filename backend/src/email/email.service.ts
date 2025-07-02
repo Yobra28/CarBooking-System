@@ -209,4 +209,129 @@ export class EmailService {
       };
     }
   }
+
+  async sendContactNotificationToAdminsAndAgents(contactMessage: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    subject: string;
+    message: string;
+    createdAt: Date;
+  }) {
+    try {
+      // Get all admins and agents
+      const users = await this.prisma.user.findMany({
+        where: {
+          role: { in: ['ADMIN', 'AGENT'] },
+          isActive: true,
+        },
+        select: {
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+        },
+      });
+
+      const emailPromises = users.map(user =>
+        this.mailerService.sendMail({
+          to: user.email,
+          subject: 'New Contact Message Notification',
+          template: 'contact-notification',
+          context: {
+            agentName: `${user.firstName} ${user.lastName}`,
+            firstName: contactMessage.firstName,
+            lastName: contactMessage.lastName,
+            email: contactMessage.email,
+            phone: contactMessage.phone,
+            subject: contactMessage.subject,
+            message: contactMessage.message,
+            messageId: contactMessage.id,
+            submittedAt: contactMessage.createdAt.toLocaleString(),
+          },
+        })
+      );
+
+      await Promise.all(emailPromises);
+      return {
+        success: true,
+        usersNotified: users.length,
+        message: `Contact notification sent to ${users.length} admins/agents`,
+      };
+    } catch (error) {
+      console.error('Error sending contact notification:', error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  async sendBookingNotificationToAdminsAndAgents(booking: {
+    id: string;
+    startDate: string;
+    endDate: string;
+    totalPrice: number;
+    status: string;
+    createdAt: Date;
+  }, customer: {
+    name: string;
+    email: string;
+    phone?: string;
+  }) {
+    try {
+      // Get all admins and agents
+      const users = await this.prisma.user.findMany({
+        where: {
+          role: { in: ['ADMIN', 'AGENT'] },
+          isActive: true,
+        },
+        select: {
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+        },
+      });
+
+      const emailPromises = users.map(user =>
+        this.mailerService.sendMail({
+          to: user.email,
+          subject: 'New Booking Notification',
+          template: 'booking-admin-notification',
+          context: {
+            adminName: `${user.firstName} ${user.lastName}`,
+            booking: {
+              id: booking.id,
+              startDate: booking.startDate,
+              endDate: booking.endDate,
+              totalPrice: booking.totalPrice,
+              status: booking.status,
+            },
+            customer: {
+              name: customer.name,
+              email: customer.email,
+              phone: customer.phone,
+            },
+            submittedAt: booking.createdAt.toLocaleString(),
+          },
+        })
+      );
+
+      await Promise.all(emailPromises);
+      return {
+        success: true,
+        usersNotified: users.length,
+        message: `Booking notification sent to ${users.length} admins/agents`,
+      };
+    } catch (error) {
+      console.error('Error sending booking notification:', error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
 }

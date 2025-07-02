@@ -156,6 +156,12 @@
           >
             View Details
           </a>
+          <button 
+            class="btn-primary w-full text-center block mt-5" 
+            *ngIf="authService.isAuthenticated()" 
+            [routerLink]="['/booking', vehicle.id]">
+            Book
+          </button>
         </div>
       </div>
     </div>
@@ -213,4 +219,10 @@
       </div>
     </div>
   </div>
-</section> 
+</section>
+
+<app-confirm-dialog 
+  *ngIf="showConfirmDialog" 
+  [message]="confirmMessage" 
+  (confirmed)="onDialogConfirmed($event)">
+</app-confirm-dialog> 

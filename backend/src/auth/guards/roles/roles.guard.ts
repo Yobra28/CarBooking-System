@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from 'generated/prisma/client';
+import { Role } from '@prisma/client';
 import { ROLES_KEY } from 'src/common/decorators/roles.decorator';
 
 @Injectable()

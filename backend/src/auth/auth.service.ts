@@ -17,7 +17,7 @@ import {
 import { LoginDto } from './dto/login.dto';
 import { RequestPasswordResetDto } from './dto/reset-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { Role } from 'generated/prisma/client';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {

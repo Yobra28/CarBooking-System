@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Role } from 'generated/prisma/client';
+import { Role } from '@prisma/client';
 export class UpdateUserDto {
   email?: string;
   password?: string;

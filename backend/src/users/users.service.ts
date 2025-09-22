@@ -8,7 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './interface/user.interface';
 import * as bcrypt from 'bcrypt';
-import { Role } from 'generated/prisma/client';
+import { Role } from '@prisma/client';
 import { UpdateUserDto } from './dto/upadate-user.dto';
 @Injectable()
 export class UsersService {

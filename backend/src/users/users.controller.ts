@@ -11,7 +11,7 @@ import { UsersService } from './users.service';
 import { User } from './interface/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiResponse } from './shared/ApiResponse/api-response.interface';
-import { Role } from 'generated/prisma/client';
+import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/upadate-user.dto';
 

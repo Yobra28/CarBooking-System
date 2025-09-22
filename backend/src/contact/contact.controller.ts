@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Body, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Patch,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
@@ -40,7 +50,10 @@ export class ContactController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'AGENT')
-  async updateContactMessage(@Param('id') id: string, @Body() updateData: { status?: 'unread' | 'read' }) {
+  async updateContactMessage(
+    @Param('id') id: string,
+    @Body() updateData: { status?: 'unread' | 'read' },
+  ) {
     return this.contactService.update(id, updateData);
   }
 
@@ -50,4 +63,4 @@ export class ContactController {
   async deleteContactMessage(@Param('id') id: string) {
     return this.contactService.remove(id);
   }
-} 
+}

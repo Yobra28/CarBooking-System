@@ -1,9 +1,11 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Mzk4NzE2Yy03NTM3LTQ0YjItODJlMC0xMGU3ZTNmY2RhMTkiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTE2MzcxMjQsImV4cCI6MTc1MTcyMzUyNH0.MwPoGoTVCmX4XZ44rCWkhUJtuFd-NIjiC-M94EyyyDM
 
 ### Create a new vehicle - Success Case
 POST {{baseUrl}}/vehicles
 Content-Type: {{contentType}}
+Authorization: {{token}}
 
 {
   "name": "Tesla Model S",
@@ -87,13 +89,14 @@ Content-Type: image/jpeg
 ### Create a vehicle (replace <IMAGE_URL> with the URL from the upload response)
 POST http://localhost:3000/vehicles
 Content-Type: application/json
+Authorization: {{token}}
 
 {
   "name": "Toyota Camry",
   "make": "Toyota",
   "model": "Camry",
   "category": "Sedan",
-  "transmission": "AUTOMATIC",
+  "transmission": "AUTO",
   "total": 5,
   "fuelType": "GASOLINE",
   "pricePerDay": 50.0,
@@ -106,4 +109,4 @@ Content-Type: application/json
 }
 
 
-
+ 

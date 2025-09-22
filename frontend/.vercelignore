@@ -1,0 +1,8 @@
+node_modules
+.angular
+dist
+*.log
+.env
+.env.local
+.env.production.local
+.env.development.local

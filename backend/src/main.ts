@@ -17,7 +17,7 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization, X-Requested-With, Accept',
   });
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT ?? 3000);
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();

@@ -60,7 +60,7 @@ export interface UpdateVehicleRequest {
   providedIn: 'root'
 })
 export class VehicleService {
-  private readonly API_URL = 'http://localhost:3000';
+  private readonly API_URL = 'https://carbooking-system.onrender.com';
 
   constructor(private http: HttpClient) { }
 

@@ -40,7 +40,7 @@ export class BookingComponent implements OnInit {
   ngOnInit() {
     this.carId = this.route.snapshot.paramMap.get('carId');
     if (this.carId) {
-      this.http.get<any>(`http://localhost:3000/vehicles/${this.carId}`).subscribe(data => {
+      this.http.get<any>(`https://carbooking-system.onrender.com/vehicles/${this.carId}`).subscribe(data => {
         this.car = data;
         this.bookingData.vehicles[0].vehicleId = this.carId!;
         this.bookingData.vehicles[0].price = data.pricePerDay;
@@ -128,7 +128,7 @@ export class BookingComponent implements OnInit {
         totalPrice: this.bookingData.totalPrice
       };
 
-      this.http.post('http://localhost:3000/booking/guest', guestBookingData).subscribe({
+      this.http.post('https://carbooking-system.onrender.com/booking/guest', guestBookingData).subscribe({
         next: (res) => {
           alert('Guest booking successful!');
           console.log('Guest booking created:', res);
@@ -159,7 +159,7 @@ export class BookingComponent implements OnInit {
         totalPrice: this.bookingData.totalPrice
       };
 
-      this.http.post('http://localhost:3000/booking', authenticatedBookingData, {
+      this.http.post('https://carbooking-system.onrender.com/booking', authenticatedBookingData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.authService.getToken()}`

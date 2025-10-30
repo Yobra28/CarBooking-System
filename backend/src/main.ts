@@ -11,7 +11,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:4200',
       'https://car-booking-system-vhlq.vercel.app',
-      'https://car-booking-system-3yhr.vercel.app/',
+      'https://car-booking-system-3yhr.vercel.app',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,

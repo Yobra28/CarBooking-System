@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  // output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,67 +7,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  AGENT
-  CUSTOMER
-}
-
-enum Transmission {
-  MANUAL
-  AUTOMATIC
-}
-
-enum FuelType {
-  GASOLINE
-  DIESEL
-  ELECTRIC
-  HYBRID
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-  REJECTED
-}
-
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String
-  firstName String
-  lastName  String
-  phone     String?
-  role      Role      @default(CUSTOMER)
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  bookings  Booking[]
-  reviews   Review[]
-  carts     Cart[]
+  id               String    @id @default(uuid())
+  email            String    @unique
+  password         String
+  firstName        String
+  lastName         String
+  phone            String?
+  role             Role      @default(CUSTOMER)
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  driverLicenseUrl String?
+  isKycVerified    Boolean   @default(false)
+  kycSubmittedAt   DateTime?
+  kycVerifiedAt    DateTime?
+  liveProfileUrl   String?
+  nationalIdUrl    String?
+  bookings         Booking[]
+  carts            Cart[]
+  reviews          Review[]
 }
 
 model Vehicle {
-  id           String       @id @default(uuid())
-  name         String         @unique
+  id           String        @id @default(uuid())
   make         String
   model        String
   category     String
   transmission Transmission
-  total        Int
   fuelType     FuelType
   pricePerDay  Float
-  color        String      
+  color        String
   mileage      Int
-  images       String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isAvailable  Boolean       @default(true)
   address      String
   city         String
+  name         String        @unique
   postalCode   String
-  isAvailable  Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  total        Int
+  images       String
   bookingItems BookingItem[]
   cartItems    CartItem[]
   reviews      Review[]
@@ -82,57 +55,61 @@ model Vehicle {
 
 model Cart {
   id        String     @id @default(uuid())
-  user      User       @relation(fields: [userId], references: [id])
   userId    String
-  cartItems CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id])
+  cartItems CartItem[]
 }
 
 model CartItem {
   id        String   @id @default(uuid())
-  cart      Cart     @relation(fields: [cartId], references: [id])
   cartId    String
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
   vehicleId String
   createdAt DateTime @default(now())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
 }
 
 model Booking {
   id           String        @id @default(uuid())
-  user         User?         @relation(fields: [userId], references: [id])
-  userId       String?
-  guestName    String?
-  guestEmail   String?
-  guestPhone   String?
-  bookingItems BookingItem[]
-  status       BookingStatus @default(PENDING)
   totalPrice   Float
+  lateFee      Float         @default(0)
+  status       BookingStatus @default(PENDING)
+  userId       String?
+  confirmedAt  DateTime?
+  completedAt  DateTime?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  guestEmail   String?
+  guestName    String?
+  guestPhone   String?
+  
+  user         User?         @relation(fields: [userId], references: [id])
+  bookingItems BookingItem[]
 }
 
 model BookingItem {
-  id         String   @id @default(uuid())
-  booking    Booking  @relation(fields: [bookingId], references: [id])
-  bookingId  String
-  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
-  vehicleId  String
-  startDate  DateTime
-  endDate    DateTime
-  price      Float
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  bookingId String
+  vehicleId String
+  startDate DateTime
+  endDate   DateTime
+  price     Float
+  createdAt DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
 }
 
 model Review {
   id        String   @id @default(uuid())
   rating    Int
   comment   String?
-  user      User     @relation(fields: [userId], references: [id])
   userId    String
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
   vehicleId String
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
 }
 
 model PasswordReset {
@@ -159,4 +136,30 @@ model ContactMessage {
   updatedAt DateTime @updatedAt
 
   @@map("contact_messages")
+}
+
+enum Role {
+  ADMIN
+  AGENT
+  CUSTOMER
+}
+
+enum Transmission {
+  MANUAL
+  AUTOMATIC
+}
+
+enum FuelType {
+  GASOLINE
+  DIESEL
+  ELECTRIC
+  HYBRID
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REJECTED
 }

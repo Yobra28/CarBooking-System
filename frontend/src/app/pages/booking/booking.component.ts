@@ -4,13 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookingService, CreateBookingRequest } from '../../services/booking.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, User } from '../../services/auth.service';
+import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-booking',
   imports: [CommonModule, FormsModule],
   templateUrl: './booking.component.html',
-  styleUrl: './booking.component.css'
+  styleUrls: ['./booking.component.css']
 })
 export class BookingComponent implements OnInit {
   carId: string | null = null;
@@ -29,22 +30,38 @@ export class BookingComponent implements OnInit {
   car: any;
   isGuestBooking = false;
 
+  needsKyc = false;
+  kycFiles: { driverLicense?: File; nationalId?: File; liveProfile?: File } = {};
+
   constructor(
     private route: ActivatedRoute, 
     private http: HttpClient,
     private bookingService: BookingService,
     public authService: AuthService,
+    private usersService: UsersService,
     private router: Router
   ) {}
 
   ngOnInit() {
     this.carId = this.route.snapshot.paramMap.get('carId');
     if (this.carId) {
-      this.http.get<any>(`https://carbooking-system.onrender.com/vehicles/${this.carId}`).subscribe(data => {
+      this.http.get<any>(`http://localhost:3000/vehicles/${this.carId}`).subscribe(data => {
         this.car = data;
         this.bookingData.vehicles[0].vehicleId = this.carId!;
         this.bookingData.vehicles[0].price = data.pricePerDay;
         this.calculateTotalPrice();
+      });
+    }
+
+    // If logged in, check KYC status
+    if (this.authService.isAuthenticated()) {
+      this.usersService.getMe().subscribe({
+        next: (me) => {
+          this.needsKyc = !(me.isKycVerified) || !((me.driverLicenseUrl) && (me.nationalIdUrl) && (me.liveProfileUrl));
+        },
+        error: () => {
+          this.needsKyc = false;
+        }
       });
     }
   }
@@ -81,6 +98,11 @@ export class BookingComponent implements OnInit {
 
   onDateChange() {
     this.calculateTotalPrice();
+  }
+
+  onFileSelected(event: any, type: 'driverLicense' | 'nationalId' | 'liveProfile') {
+    const file: File | undefined = event.target.files?.[0];
+    if (file) this.kycFiles[type] = file;
   }
 
   book() {
@@ -128,7 +150,7 @@ export class BookingComponent implements OnInit {
         totalPrice: this.bookingData.totalPrice
       };
 
-      this.http.post('https://carbooking-system.onrender.com/booking/guest', guestBookingData).subscribe({
+      this.http.post('http://localhost:3000/booking/guest', guestBookingData).subscribe({
         next: (res) => {
           alert('Guest booking successful!');
           console.log('Guest booking created:', res);
@@ -148,6 +170,33 @@ export class BookingComponent implements OnInit {
         return;
       }
 
+      // If user needs KYC, ensure files are provided and submit first
+      const requireKycNow = this.needsKyc;
+      const hasAllKycFiles = !!(this.kycFiles.driverLicense && this.kycFiles.nationalId && this.kycFiles.liveProfile);
+      if (requireKycNow) {
+        if (!hasAllKycFiles) {
+          alert('Please upload your driving license, national ID and a live profile photo before booking.');
+          return;
+        }
+        // Submit KYC
+        this.usersService.submitKyc({
+          driverLicense: this.kycFiles.driverLicense!,
+          nationalId: this.kycFiles.nationalId!,
+          liveProfile: this.kycFiles.liveProfile!,
+        }).subscribe({
+          next: () => {
+            this.needsKyc = false;
+            alert('KYC submitted successfully. Your booking will remain pending until an admin approves your documents.');
+            this.createAuthenticatedBooking(currentUser.id);
+          },
+          error: (err) => {
+            console.error('KYC upload failed', err);
+            alert('Failed to upload KYC documents. Please try again.');
+          }
+        });
+        return;
+      }
+
       const authenticatedBookingData = {
         userId: currentUser.id,
         vehicles: [{
@@ -159,7 +208,7 @@ export class BookingComponent implements OnInit {
         totalPrice: this.bookingData.totalPrice
       };
 
-      this.http.post('https://carbooking-system.onrender.com/booking', authenticatedBookingData, {
+      this.http.post('http://localhost:3000/booking', authenticatedBookingData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.authService.getToken()}`
@@ -172,6 +221,11 @@ export class BookingComponent implements OnInit {
         },
         error: (error) => {
           console.error('Booking error:', error);
+          if (error.status === 400 && error.error?.code === 'KYC_REQUIRED') {
+            this.needsKyc = true;
+            alert('Please upload your driving license, national ID and a live profile photo to continue.');
+            return;
+          }
           if (error.status === 401) {
             alert('Please login to book a car');
             this.router.navigate(['/login']);
@@ -181,5 +235,34 @@ export class BookingComponent implements OnInit {
         }
       });
     }
+  }
+  private createAuthenticatedBooking(userId: string) {
+    const authenticatedBookingData = {
+      userId,
+      vehicles: [{
+        vehicleId: this.bookingData.vehicles[0].vehicleId,
+        startDate: new Date(this.bookingData.vehicles[0].startDate),
+        endDate: new Date(this.bookingData.vehicles[0].endDate),
+        price: this.bookingData.vehicles[0].price
+      }],
+      totalPrice: this.bookingData.totalPrice
+    };
+
+    this.http.post('http://localhost:3000/booking', authenticatedBookingData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.authService.getToken()}`
+      }
+    }).subscribe({
+      next: (res) => {
+        alert('Booking submitted! It will be approved after your documents are verified.');
+        console.log('Booking created:', res);
+        this.router.navigate(['/customer-dashboard']);
+      },
+      error: (error) => {
+        console.error('Booking error:', error);
+        alert('Error creating booking. Please try again.');
+      }
+    });
   }
 }

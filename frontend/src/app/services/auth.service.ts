@@ -10,6 +10,11 @@ export interface User {
   lastName: string;
   role: 'ADMIN' | 'AGENT' | 'CUSTOMER';
   createdAt: string;
+  phone?: string;
+  isKycVerified?: boolean;
+  driverLicenseUrl?: string | null;
+  nationalIdUrl?: string | null;
+  liveProfileUrl?: string | null;
 }
 
 export interface AuthResponse {
@@ -49,7 +54,7 @@ export interface PasswordResetResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'https://carbooking-system.onrender.com';
+  private readonly API_URL = 'http://localhost:3000';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 

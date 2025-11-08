@@ -10,6 +10,10 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:4200',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:4200',
+      'https://localhost:4200',
+      'https://127.0.0.1:4200',
       'https://car-booking-system-vhlq.vercel.app',
       'https://car-booking-system-3yhr.vercel.app',
     ],

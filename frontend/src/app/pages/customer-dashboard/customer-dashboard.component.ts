@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BookingService, Booking } from '../../services/booking.service';
+import { BookingEventsService } from '../../services/booking-events.service';
 import { AuthService, User } from '../../services/auth.service';
 import { ReviewService, Review } from '../../services/review.service';
+import { UsersService } from '../../services/users.service';
 
 interface DashboardStats {
   totalRentals: number;
@@ -31,7 +33,7 @@ interface RentalHistory {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './customer-dashboard.component.html',
-  styleUrl: './customer-dashboard.component.css'
+  styleUrls: ['./customer-dashboard.component.css']
 })
 export class CustomerDashboardComponent implements OnInit {
   currentUser: User | null = null;
@@ -49,6 +51,13 @@ export class CustomerDashboardComponent implements OnInit {
   activeTab: 'overview' | 'upcoming' | 'history' | 'profile' = 'overview';
   showRentalModal = false;
   selectedRental: RentalHistory | null = null;
+
+  // Profile edit state
+  editProfile = false;
+  profile: { firstName: string; lastName: string; email: string; phone?: string } = { firstName: '', lastName: '', email: '', phone: '' };
+
+  // Rules modal state
+  showRulesModal = false;
   
   // Loading states
   isLoading = false;
@@ -57,13 +66,24 @@ export class CustomerDashboardComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
+    private bookingEvents: BookingEventsService,
     private authService: AuthService,
-    private reviewService: ReviewService
+    private reviewService: ReviewService,
+    private usersService: UsersService,
   ) {}
 
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
     this.loadData();
+    this.loadProfile();
+
+    // Subscribe to booking events for real-time updates
+    this.bookingEvents.connect().subscribe(ev => {
+      if (ev.type === 'booking_updated' || ev.type === 'booking_cancelled' || ev.type === 'booking_created') {
+        this.loadData();
+      }
+    });
+
   }
 
   loadData() {
@@ -119,8 +139,10 @@ export class CustomerDashboardComponent implements OnInit {
     const pendingBookings = this.bookings.filter(b => b.status === 'PENDING');
     const cancelledBookings = this.bookings.filter(b => b.status === 'CANCELLED');
     
-    // Calculate total spent from all bookings (including cancelled ones)
-    const totalSpent = this.bookings.reduce((sum, b) => sum + b.totalPrice, 0);
+    // Calculate total spent from completed (and optionally confirmed) bookings only
+    const totalSpent = this.bookings
+      .filter(b => b.status === 'COMPLETED')
+      .reduce((sum, b) => sum + b.totalPrice, 0);
     
     // Calculate average rating from user's reviews
     const averageRating = this.userReviews.length > 0 
@@ -268,6 +290,47 @@ export class CustomerDashboardComponent implements OnInit {
     this.selectedRental = null;
   }
 
+  acceptRules() {
+    this.showRulesModal = false;
+  }
+
+  loadProfile() {
+    this.usersService.getMe().subscribe({
+      next: (me) => {
+        this.profile = {
+          firstName: me.firstName,
+          lastName: me.lastName,
+          email: me.email,
+          phone: (me as any).phone,
+        };
+      },
+      error: (err) => {
+        console.error('Failed to load profile', err);
+      },
+    });
+  }
+
+  saveProfile() {
+    this.usersService.updateMe(this.profile).subscribe({
+      next: (me) => {
+        // persist to auth storage
+        const user = this.authService.getCurrentUser();
+        if (user) {
+          this.authService['setAuthData']?.( // fallback if private, else update localStorage directly
+            { ...user, firstName: me.firstName, lastName: me.lastName, email: me.email, phone: (me as any).phone } as any,
+            this.authService.getToken() as any
+          );
+          localStorage.setItem('user', JSON.stringify({ ...user, firstName: me.firstName, lastName: me.lastName, email: me.email, phone: (me as any).phone }));
+        }
+        this.editProfile = false;
+      },
+      error: (err) => {
+        console.error('Failed to update profile', err);
+        this.showMessage('Failed to update profile', 'error');
+      },
+    });
+  }
+
   formatDate(date: string | Date | undefined): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
@@ -325,10 +388,16 @@ export class CustomerDashboardComponent implements OnInit {
   }
 
   getTotalSpent(): number {
-    return this.bookings.reduce((sum, b) => sum + b.totalPrice, 0);
+    return this.bookings
+      .filter(b => b.status === 'COMPLETED')
+      .reduce((sum, b) => sum + b.totalPrice, 0);
   }
 
   getActiveBookings(): number {
     return this.bookings.filter(b => b.status === 'CONFIRMED' || b.status === 'PENDING').length;
   }
-} 
+
+  logout() {
+    this.authService.logout();
+  }
+}

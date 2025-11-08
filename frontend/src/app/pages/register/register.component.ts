@@ -22,6 +22,8 @@ export class RegisterComponent implements OnInit {
   };
 
   confirmPassword = '';
+  agreedToRules = false;
+  showRulesModal = false;
   isLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -43,6 +45,12 @@ export class RegisterComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
+
+    if (!this.agreedToRules) {
+      this.errorMessage = 'You must agree to the booking and usage rules to create an account.';
+      this.isLoading = false;
+      return;
+    }
 
     if (this.registerData.password !== this.confirmPassword) {
       this.errorMessage = 'Passwords do not match';

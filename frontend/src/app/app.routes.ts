@@ -11,6 +11,7 @@ import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard
 import { AgentDashboardComponent } from './pages/agent-dashboard/agent-dashboard.component';
 import { CustomerDashboardComponent } from './pages/customer-dashboard/customer-dashboard.component';
 import { PasswordResetComponent } from './pages/password-reset/password-reset.component';
+import { CartComponent } from './pages/cart/cart.component';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
@@ -39,6 +40,7 @@ export const routes: Routes = [
   { path: 'contact', component: ContactComponent },
   { path: 'car/:id', component: CarDetailsComponent },
   { path: 'booking/:carId', component: BookingComponent, canActivate: [authGuard] },
+  { path: 'cart', component: CartComponent, canActivate: [authGuard] },
   { path: 'admin-dashboard', component: AdminDashboardComponent },
   { path: 'agent-dashboard', component: AgentDashboardComponent },
   { path: 'customer-dashboard', component: CustomerDashboardComponent },

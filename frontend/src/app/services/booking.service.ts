@@ -11,6 +11,9 @@ export interface Booking {
   startDate: string;
   endDate: string;
   totalPrice: number;
+  lateFee?: number;
+  confirmedAt?: string;
+  completedAt?: string;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
   createdAt: string;
   updatedAt: string;
@@ -61,7 +64,7 @@ export interface UpdateBookingRequest {
   providedIn: 'root'
 })
 export class BookingService {
-  private readonly API_URL = 'https://carbooking-system.onrender.com';
+  private readonly API_URL = 'http://localhost:3000';
 
   constructor(private http: HttpClient) { }
 

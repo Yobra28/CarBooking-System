@@ -1,19 +1,20 @@
-<div *ngIf="car" class="container mx-auto py-8">
-  <h2 class="text-2xl font-bold mb-4">Book {{ car.name }}</h2>
-  
-  <!-- Car Details -->
-  <div class="bg-white rounded-lg shadow p-6 mb-6 max-w-md">
-    <div class="flex items-center space-x-4 mb-4">
-      <img [src]="car.images" [alt]="car.name" class="w-20 h-20 rounded-lg object-cover">
-      <div>
-        <h3 class="text-lg font-semibold">{{ car.name }}</h3>
-        <p class="text-gray-600">{{ car.make }} {{ car.model }}</p>
-        <p class="text-green-600 font-semibold">${{ car.pricePerDay }}/day</p>
+<div *ngIf="car" class="w-full py-8">
+  <div class="max-w-2xl mx-auto px-4">
+    <h2 class="text-2xl font-bold mb-6 text-center">Book {{ car.name }}</h2>
+    
+    <!-- Car Details -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6 max-w-md mx-auto">
+      <div class="flex items-center space-x-4 mb-4">
+        <img [src]="car.images" [alt]="car.name" class="w-20 h-20 rounded-lg object-cover">
+        <div>
+          <h3 class="text-lg font-semibold">{{ car.name }}</h3>
+          <p class="text-gray-600">{{ car.make }} {{ car.model }}</p>
+          <p class="text-green-600 font-semibold">${{ car.pricePerDay }}/day</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <form (ngSubmit)="book()" class="space-y-4 max-w-md">
+    <form (ngSubmit)="book()" class="space-y-4 max-w-md mx-auto">
     <!-- Guest Information (only show if not authenticated) -->
     <div *ngIf="!authService.isAuthenticated()" class="bg-gray-50 p-4 rounded-lg">
       <h3 class="font-semibold mb-3">Guest Information</h3>
@@ -47,6 +48,27 @@
       </div>
     </div>
 
+    <!-- KYC Upload (only for authenticated users who need it) -->
+    <div *ngIf="authService.isAuthenticated() && needsKyc" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+      <h3 class="font-semibold mb-2">Identity Verification Required (one-time)</h3>
+      <p class="text-sm text-gray-600 mb-3">Please upload the following documents. You can take photos with your camera or choose from your gallery.</p>
+      <div class="space-y-2">
+        <div>
+          <label class="block text-sm font-medium mb-1">Driving License</label>
+          <input type="file" accept="image/*" capture="environment" (change)="onFileSelected($event, 'driverLicense')" class="w-full" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">National ID</label>
+          <input type="file" accept="image/*" capture="environment" (change)="onFileSelected($event, 'nationalId')" class="w-full" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Live Profile Photo (Selfie)</label>
+          <input type="file" accept="image/*" capture="user" (change)="onFileSelected($event, 'liveProfile')" class="w-full" />
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">Admin will review your documents and approve your booking.</p>
+    </div>
+
     <!-- Price Summary -->
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
       <h3 class="font-semibold mb-2">Price Summary</h3>
@@ -69,5 +91,6 @@
     <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold">
       Book Now - ${{ getFormattedTotalPrice() }}
     </button>
-  </form>
+    </form>
+  </div>
 </div>

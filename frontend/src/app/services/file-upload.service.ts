@@ -10,7 +10,7 @@ export interface UploadResponse {
   providedIn: 'root'
 })
 export class FileUploadService {
-  private readonly API_URL = 'https://carbooking-system.onrender.com';
+  private readonly API_URL = 'http://localhost:3000';
 
   constructor(private http: HttpClient) { }
 

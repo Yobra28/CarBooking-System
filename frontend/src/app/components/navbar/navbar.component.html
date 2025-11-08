@@ -41,15 +41,10 @@
           </a>
         </div>
         
-        
-        <div *ngIf="isLoggedIn" class="flex items-center space-x-4">
-          <a [routerLink]="getDashboardLink()" class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
-            {{ getDashboardName() }}
-          </a>
-          <button (click)="logout()" class="text-gray-700 hover:text-red-600 font-medium transition-colors duration-200">
-            Logout
-          </button>
-        </div>
+        <!-- Minimal dashboard link for logged-in customers -->
+        <a *ngIf="isLoggedIn && userRole==='CUSTOMER'" routerLink="/customer-dashboard" class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+          Dashboard
+        </a>
       </div>
 
       <div class="md:hidden">
@@ -89,15 +84,11 @@
             </a>
           </div>
           
-        
-          <div *ngIf="isLoggedIn">
-            <a [routerLink]="getDashboardLink()" (click)="closeMobileMenu()" class="block px-3 py-2 text-blue-600 hover:text-blue-800 font-medium">
-              {{ getDashboardName() }}
-            </a>
-            <button (click)="logout(); closeMobileMenu()" class="block w-full text-left px-3 py-2 text-gray-700 hover:text-red-600 font-medium">
-              Logout
-            </button>
-          </div>
+          
+          <!-- Minimal dashboard link for logged-in customers in mobile navbar -->
+          <a *ngIf="isLoggedIn && userRole==='CUSTOMER'" routerLink="/customer-dashboard" (click)="closeMobileMenu()" class="block px-3 py-2 text-blue-600 hover:text-blue-800 font-medium">
+            Dashboard
+          </a>
         </div>
       </div>
     </div>

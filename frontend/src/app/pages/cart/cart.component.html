@@ -1,0 +1,59 @@
+<div class="min-h-screen bg-gray-100">
+  <div class="container-max py-8">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Your Cart</h2>
+
+    <div *ngIf="items.length === 0" class="bg-white border rounded-lg p-8 text-center">
+      <p class="text-gray-600">Your cart is empty.</p>
+      <a routerLink="/vehicles" class="btn-primary mt-4 inline-block">Browse Vehicles</a>
+    </div>
+
+    <div *ngIf="items.length > 0" class="grid lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 space-y-4">
+        <div *ngFor="let item of items" class="bg-white border rounded-lg p-4 flex items-start gap-4">
+          <img [src]="item.image" [alt]="item.name" class="w-24 h-24 rounded object-cover">
+          <div class="flex-1">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-medium text-gray-900">{{ item.name }}</div>
+                <div class="text-sm text-gray-600">${{ item.pricePerDay }}/day</div>
+              </div>
+              <button class="text-red-600 hover:text-red-800" (click)="remove(item)">Remove</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="text-xs text-gray-600">Start date</label>
+                <input type="date" [(ngModel)]="item.startDate" (change)="onDateChange(item)" class="w-full border rounded p-2">
+              </div>
+              <div>
+                <label class="text-xs text-gray-600">End date</label>
+                <input type="date" [(ngModel)]="item.endDate" (change)="onDateChange(item)" class="w-full border rounded p-2">
+              </div>
+            </div>
+
+            <div class="mt-2 text-sm text-gray-700">
+              <span>Days: {{ days(item) }}</span>
+              <span class="ml-4 font-medium">Item total: ${{ itemTotal(item) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border rounded-lg p-4 h-fit">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Summary</h3>
+        <div class="flex justify-between mb-2">
+          <span>Vehicles</span>
+          <span>{{ items.length }}</span>
+        </div>
+        <div class="flex justify-between border-t pt-2 font-semibold">
+          <span>Total</span>
+          <span class="text-blue-600">${{ total() }}</span>
+        </div>
+        <button [disabled]="isSubmitting || total() === 0" (click)="checkout()" class="btn-primary w-full mt-4 disabled:opacity-50">
+          {{ isSubmitting ? 'Placing booking...' : 'Checkout' }}
+        </button>
+        <p *ngIf="message" class="text-sm mt-2" [class]="message.includes('Failed') ? 'text-red-600' : 'text-green-600'">{{ message }}</p>
+      </div>
+    </div>
+  </div>
+</div>

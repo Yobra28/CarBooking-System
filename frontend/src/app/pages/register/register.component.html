@@ -121,6 +121,19 @@
             />
           </div>
         </div>
+
+        <!-- Rules agreement -->
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <input id="agreeRules" name="agreeRules" type="checkbox" [(ngModel)]="agreedToRules" required class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
+          </div>
+          <div class="ml-3 text-sm">
+            <label for="agreeRules" class="text-gray-700">
+              I agree to the <button type="button" (click)="showRulesModal = true" class="text-indigo-600 hover:text-indigo-500 underline">booking and usage rules</button>.
+            </label>
+          </div>
+        </div>
+
         <div>
           <button
             type="submit"
@@ -137,6 +150,57 @@
           </button>
         </div>
       </form>
+
+      <!-- Rules modal -->
+      <div *ngIf="showRulesModal" class="fixed inset-0 z-50 bg-gray-700 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[80vh] overflow-auto">
+          <div class="p-6 border-b flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-gray-900">Booking and Usage Rules</h3>
+            <button type="button" (click)="showRulesModal = false" class="text-gray-500 hover:text-gray-700">✕</button>
+          </div>
+          <div class="p-6 space-y-6 text-sm text-gray-800">
+            <div>
+              <h4 class="font-semibold mb-2">1. Booking Rules</h4>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>You can only book cars that are available for your selected dates.</li>
+                <li>Bookings must be made at least 2 hours before the pickup time.</li>
+                <li>Minimum rental period is 1 hour; maximum is 30 days.</li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-2">2. Payment & Refund Rules</h4>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>All bookings must be paid before confirmation.</li>
+                <li>Refunds are only processed for cancellations made before the pickup time (according to our policy).</li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-2">3. Car Usage Rules</h4>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>Return the car on or before the agreed return time to avoid late fees.</li>
+                <li>Late returns will attract additional charges per hour.</li>
+                <li>Return car with the same fuel level as at pickup.</li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-2">4. Verification Rules</h4>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>A valid ID and driving license are required before renting a car.</li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-2">5. Cancellation Rules</h4>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>You may cancel a booking before the pickup time. Refund policy may apply.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="p-6 border-t flex justify-end gap-2">
+            <button type="button" class="btn-secondary" (click)="showRulesModal = false">Close</button>
+            <button type="button" class="btn-primary" (click)="agreedToRules = true; showRulesModal = false">I Agree</button>
+          </div>
+        </div>
+      </div>
       <div class="mt-6">
         <div class="relative">
           <div class="absolute inset-0 flex items-center">

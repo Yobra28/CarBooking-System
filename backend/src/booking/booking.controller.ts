@@ -1,14 +1,17 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Get, Body, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Patch, Delete, UseGuards, Sse, MessageEvent } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { BookingEventsService } from './booking.events.service';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Controller('booking')
 export class BookingController {
-  constructor(private readonly bookingService: BookingService) {}
+  constructor(private readonly bookingService: BookingService, private readonly bookingEvents: BookingEventsService) {}
 
   @Post('guest')
   async createGuestBooking(@Body() createBookingDto: CreateBookingDto) {
@@ -61,5 +64,14 @@ export class BookingController {
   @Roles('ADMIN')
   async deleteBooking(@Param('id') id: string) {
     return this.bookingService.remove(id);
+  }
+
+  // Server-Sent Events stream for booking status updates
+  @Get('events')
+  @Sse()
+  events(): Observable<MessageEvent> {
+    return this.bookingEvents.asObservable().pipe(
+      map((e) => ({ data: e }))
+    );
   }
 }

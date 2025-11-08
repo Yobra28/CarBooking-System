@@ -3,17 +3,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 /* eslint-disable prettier/prettier */
-import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './interface/user.interface';
 import * as bcrypt from 'bcrypt';
 import { Role } from '@prisma/client';
 import { UpdateUserDto } from './dto/upadate-user.dto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 @Injectable()
 export class UsersService {
     user: any;
-    constructor(private prismaservice: PrismaService) {}
+    constructor(private prismaservice: PrismaService, private cloudinary: CloudinaryService) {}
     async create(data: CreateUserDto): Promise<User>{
         try {
       const existingUser = await this.prismaservice.user.findUnique({
@@ -149,9 +150,121 @@ export class UsersService {
         lastName: true,
         role: true,
         isActive: true,
+        phone: true,
         createdAt: true,
+        isKycVerified: true,
+        driverLicenseUrl: true,
+        nationalIdUrl: true,
+        liveProfileUrl: true,
       },
     });
   }
 
+  async remove(id: string) {
+    return this.prismaservice.user.delete({ where: { id } });
+  }
+
+  async submitKyc(
+    userId: string,
+    files: {
+      driverLicense?: Express.Multer.File[];
+      nationalId?: Express.Multer.File[];
+      liveProfile?: Express.Multer.File[];
+    },
+  ) {
+    if (!files || (!files.driverLicense && !files.nationalId && !files.liveProfile)) {
+      throw new BadRequestException('No files uploaded');
+    }
+
+    const updates: any = {};
+
+    if (files.driverLicense?.[0]) {
+      const uploaded = await this.cloudinary.uploadImage(files.driverLicense[0]);
+      updates.driverLicenseUrl = uploaded.secure_url;
+    }
+    if (files.nationalId?.[0]) {
+      const uploaded = await this.cloudinary.uploadImage(files.nationalId[0]);
+      updates.nationalIdUrl = uploaded.secure_url;
+    }
+    if (files.liveProfile?.[0]) {
+      const uploaded = await this.cloudinary.uploadImage(files.liveProfile[0]);
+      updates.liveProfileUrl = uploaded.secure_url;
+    }
+
+    updates.isKycVerified = false;
+    updates.kycSubmittedAt = new Date();
+
+    const user = await this.prismaservice.user.update({
+      where: { id: userId },
+      data: updates,
+      select: {
+        id: true,
+        driverLicenseUrl: true,
+        nationalIdUrl: true,
+        liveProfileUrl: true,
+        isKycVerified: true,
+        kycSubmittedAt: true,
+      },
+    });
+
+    return {
+      message: 'KYC submitted successfully. An admin will review and approve shortly.',
+      user,
+    };
+  }
+
+  async getKyc(userId: string) {
+    const user = await this.prismaservice.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        driverLicenseUrl: true,
+        nationalIdUrl: true,
+        liveProfileUrl: true,
+        isKycVerified: true,
+        kycSubmittedAt: true,
+        kycVerifiedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async approveKyc(userId: string) {
+    const user = await this.prismaservice.user.update({
+      where: { id: userId },
+      data: {
+        isKycVerified: true,
+        kycVerifiedAt: new Date(),
+      },
+      select: {
+        id: true,
+        isKycVerified: true,
+        kycVerifiedAt: true,
+      },
+    });
+    return { message: 'KYC approved', user };
+  }
+
+  async rejectKyc(userId: string) {
+    const user = await this.prismaservice.user.update({
+      where: { id: userId },
+      data: {
+        isKycVerified: false,
+        driverLicenseUrl: null,
+        nationalIdUrl: null,
+        liveProfileUrl: null,
+        kycSubmittedAt: null,
+        kycVerifiedAt: null,
+      },
+      select: {
+        id: true,
+        isKycVerified: true,
+      },
+    });
+    return { message: 'KYC rejected and reset', user };
+  }
 }

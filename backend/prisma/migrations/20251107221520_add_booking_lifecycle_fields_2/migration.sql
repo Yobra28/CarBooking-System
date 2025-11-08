@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Booking" ADD COLUMN     "completedAt" TIMESTAMP(3),
+ADD COLUMN     "confirmedAt" TIMESTAMP(3),
+ADD COLUMN     "lateFee" DOUBLE PRECISION NOT NULL DEFAULT 0;

@@ -1,0 +1,173 @@
+<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h3 class="text-2xl font-bold text-gray-900">KYC Verification</h3>
+        <p class="text-gray-600 mt-1">{{ userName }}</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span [class]="'px-3 py-1 rounded-full text-sm font-semibold ' + getStatusClass()">
+          {{ getStatusText() }}
+        </span>
+        <button (click)="close()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+      {{ error }}
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="kycData && !isLoading" class="space-y-6">
+      <!-- Submission Info -->
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-gray-600">Submitted</p>
+            <p class="font-semibold text-gray-900">{{ formatDate(kycData.kycSubmittedAt) }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Verified</p>
+            <p class="font-semibold text-gray-900">{{ formatDate(kycData.kycVerifiedAt) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Driver License -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <div class="bg-gray-100 p-4 border-b border-gray-200">
+            <h4 class="font-semibold text-gray-900">Driver License</h4>
+          </div>
+          <div class="p-4">
+            <div class="aspect-video bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+              <img 
+                *ngIf="kycData.driverLicenseUrl && !imageErrors['driverLicense']"
+                [src]="kycData.driverLicenseUrl" 
+                alt="Driver License"
+                (error)="onImageError('driverLicense')"
+                class="w-full h-full object-cover">
+              <div *ngIf="!kycData.driverLicenseUrl || imageErrors['driverLicense']" class="flex flex-col items-center justify-center text-gray-500">
+                <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-sm">No image</span>
+              </div>
+            </div>
+            <a 
+              *ngIf="kycData.driverLicenseUrl"
+              [href]="kycData.driverLicenseUrl" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-block text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+              Open in new tab ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- National ID -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <div class="bg-gray-100 p-4 border-b border-gray-200">
+            <h4 class="font-semibold text-gray-900">National ID</h4>
+          </div>
+          <div class="p-4">
+            <div class="aspect-video bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+              <img 
+                *ngIf="kycData.nationalIdUrl && !imageErrors['nationalId']"
+                [src]="kycData.nationalIdUrl" 
+                alt="National ID"
+                (error)="onImageError('nationalId')"
+                class="w-full h-full object-cover">
+              <div *ngIf="!kycData.nationalIdUrl || imageErrors['nationalId']" class="flex flex-col items-center justify-center text-gray-500">
+                <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-sm">No image</span>
+              </div>
+            </div>
+            <a 
+              *ngIf="kycData.nationalIdUrl"
+              [href]="kycData.nationalIdUrl" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-block text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+              Open in new tab ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- Live Profile -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <div class="bg-gray-100 p-4 border-b border-gray-200">
+            <h4 class="font-semibold text-gray-900">Live Profile Photo</h4>
+          </div>
+          <div class="p-4">
+            <div class="aspect-video bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+              <img 
+                *ngIf="kycData.liveProfileUrl && !imageErrors['liveProfile']"
+                [src]="kycData.liveProfileUrl" 
+                alt="Live Profile"
+                (error)="onImageError('liveProfile')"
+                class="w-full h-full object-cover">
+              <div *ngIf="!kycData.liveProfileUrl || imageErrors['liveProfile']" class="flex flex-col items-center justify-center text-gray-500">
+                <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-sm">No image</span>
+              </div>
+            </div>
+            <a 
+              *ngIf="kycData.liveProfileUrl"
+              [href]="kycData.liveProfileUrl" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-block text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+              Open in new tab ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div *ngIf="kycData && !isLoading" class="mt-8 flex gap-3 justify-end border-t pt-6">
+      <button 
+        (click)="close()"
+        [disabled]="isProcessing"
+        class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        Close
+      </button>
+      <button 
+        *ngIf="!kycData.isKycVerified"
+        (click)="rejectKyc()"
+        [disabled]="isProcessing"
+        class="px-4 py-2 rounded-lg border border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span *ngIf="!isProcessing">Reject</span>
+        <span *ngIf="isProcessing">Processing...</span>
+      </button>
+      <button 
+        *ngIf="!kycData.isKycVerified"
+        (click)="approveKyc()"
+        [disabled]="isProcessing"
+        class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span *ngIf="!isProcessing">Approve</span>
+        <span *ngIf="isProcessing">Processing...</span>
+      </button>
+      <div *ngIf="kycData.isKycVerified" class="flex items-center text-green-700 font-medium">
+        ✓ Already Verified
+      </div>
+    </div>
+  </div>
+</div>

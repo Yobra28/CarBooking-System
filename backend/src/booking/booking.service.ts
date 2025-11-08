@@ -4,17 +4,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EmailService } from 'src/email/email.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { BookingEventsService } from './booking.events.service';
 // import {User} from '../users/interface';
 
 @Injectable()
 export class BookingService {
-    constructor(
+  constructor(
       private prisma: PrismaService,
-      private emailService: EmailService
+      private emailService: EmailService,
+      private events: BookingEventsService,
     ) {}
 
   private calculateDays(startDate: Date, endDate: Date): number {
@@ -36,119 +38,173 @@ export class BookingService {
     
     return totalPrice;
   }
+async create(data: CreateBookingDto) {
+  console.log('Creating booking with data:', JSON.stringify(data, null, 2));
 
-  async create(data: CreateBookingDto) {
-    console.log('Creating booking with data:', JSON.stringify(data, null, 2));
-    
-    const calculatedTotalPrice = this.calculateTotalPrice(data.vehicles);
-    const finalTotalPrice = data.totalPrice || calculatedTotalPrice;
-    
-    console.log('Calculated total price:', calculatedTotalPrice);
-    console.log('Final total price:', finalTotalPrice);
-    
-    return this.prisma.$transaction(async (prisma) => {
+  const calculatedTotalPrice = this.calculateTotalPrice(data.vehicles);
+  const finalTotalPrice = data.totalPrice || calculatedTotalPrice;
+
+  console.log('Calculated total price:', calculatedTotalPrice);
+  console.log('Final total price:', finalTotalPrice);
+
+  // ✅ 1. DO TRANSACTION FIRST (NO EMAILS HERE)
+  const { booking, bookingItems, emailToSend, nameToSend, autoConfirmed } =
+    await this.prisma.$transaction(async (prisma) => {
+      // ✅ All KYC checks (fast)
+      let user: { isKycVerified: boolean; driverLicenseUrl?: string | null; nationalIdUrl?: string | null; liveProfileUrl?: string | null } | null = null;
+      if (data.userId) {
+        user = await prisma.user.findUnique({
+          where: { id: data.userId },
+          select: {
+            isKycVerified: true,
+            driverLicenseUrl: true,
+            nationalIdUrl: true,
+            liveProfileUrl: true,
+          },
+        });
+
+        if (user) {
+          const hasSubmittedKyc = !!(
+            user.driverLicenseUrl &&
+            user.nationalIdUrl &&
+            user.liveProfileUrl
+          );
+
+          if (!hasSubmittedKyc) {
+            throw new BadRequestException({
+              code: 'KYC_REQUIRED',
+              message:
+                'Please upload your driving license, national ID and live profile photo to proceed with your first booking.',
+            });
+          }
+        }
+      }
+
+      // ✅ Determine initial status: auto-confirm if KYC is verified
+      const initialStatus = user?.isKycVerified ? 'CONFIRMED' : 'PENDING';
+      const confirmedAt = initialStatus === 'CONFIRMED' ? new Date() : undefined;
+
+      // ✅ Create booking
       const booking = await prisma.booking.create({
         data: {
           userId: data.userId,
           guestName: data.guestName,
           guestEmail: data.guestEmail,
           guestPhone: data.guestPhone,
-          status: 'PENDING',
+          status: initialStatus as any,
+          confirmedAt: confirmedAt,
           totalPrice: finalTotalPrice,
         },
       });
 
-      console.log('Created booking:', booking);
-
+      // ✅ Create items
       const bookingItems = await Promise.all(
-        data.vehicles.map((vehicle) => {
+        data.vehicles.map(async (vehicle) => {
           const days = this.calculateDays(vehicle.startDate, vehicle.endDate);
-          const itemPrice = vehicle.price || 0;
-          
+          const itemPrice = (vehicle.price || 0) * days;
+
           return prisma.bookingItem.create({
             data: {
               bookingId: booking.id,
               vehicleId: vehicle.vehicleId,
               startDate: vehicle.startDate,
               endDate: vehicle.endDate,
-              price: itemPrice * days, 
+              price: itemPrice,
             },
           });
         })
       );
 
-      console.log('Created booking items:', bookingItems);
-
-      // Send pending approval email to user (registered or guest)
+      // ✅ Prepare email data INSIDE transaction, but do not send here!
       let emailToSend = data.guestEmail;
       let nameToSend = data.guestName || 'Valued Customer';
+
       if (data.userId) {
         const user = await prisma.user.findUnique({
           where: { id: data.userId },
           select: { email: true, firstName: true, lastName: true },
         });
-        if (user && user.email) {
+
+        if (user?.email) {
           emailToSend = user.email;
           nameToSend = `${user.firstName} ${user.lastName}`.trim();
         }
       }
-      if (emailToSend) {
-        try {
-          await this.emailService.sendBookingPendingEmail(
+
+      return { booking, bookingItems, emailToSend, nameToSend, autoConfirmed: initialStatus === 'CONFIRMED' };
+    });
+
+  // Emit created event
+  this.events.publish({ type: 'booking_created', payload: { ...booking, bookingItems } });
+
+  // ✅ 2. SEND EMAILS AFTER TRANSACTION (SAFE)
+  try {
+    if (emailToSend) {
+      if (autoConfirmed) {
+        void this.emailService
+          .sendBookingConfirmationEmail(
             emailToSend,
-            nameToSend || '',
+            nameToSend,
             {
               id: booking.id,
-              startDate: ((data.vehicles[0]?.startDate instanceof Date)
-                ? data.vehicles[0]?.startDate.toISOString()
-                : data.vehicles[0]?.startDate) || '',
-              endDate: ((data.vehicles[0]?.endDate instanceof Date)
-                ? data.vehicles[0]?.endDate.toISOString()
-                : data.vehicles[0]?.endDate) || '',
-              totalPrice: finalTotalPrice,
+              startDate: bookingItems[0]?.startDate,
+              endDate: bookingItems[0]?.endDate,
+              totalPrice: booking.totalPrice,
               status: booking.status,
             }
-          );
-        } catch (error) {
-          console.error('Failed to send pending booking email:', error);
-        }
-      }
-
-      // Send notification email to all admins and agents
-      try {
-        await this.emailService.sendBookingNotificationToAdminsAndAgents(
-          {
+          )
+          .catch((err) => console.error('Failed to send confirmation email:', err));
+      } else {
+        void this.emailService
+          .sendBookingPendingEmail(emailToSend, nameToSend, {
             id: booking.id,
-            startDate: ((data.vehicles[0]?.startDate instanceof Date)
-              ? data.vehicles[0]?.startDate.toISOString()
-              : data.vehicles[0]?.startDate) || '',
-            endDate: ((data.vehicles[0]?.endDate instanceof Date)
-              ? data.vehicles[0]?.endDate.toISOString()
-              : data.vehicles[0]?.endDate) || '',
-            totalPrice: finalTotalPrice,
+            startDate: bookingItems[0]?.startDate.toISOString(),
+            endDate: bookingItems[0]?.endDate.toISOString(),
+            totalPrice: booking.totalPrice,
             status: booking.status,
-            createdAt: booking.createdAt,
-          },
-          {
-            name: nameToSend || '',
-            email: emailToSend || '',
-            phone: data.guestPhone ?? undefined,
-          }
-        );
-        console.log('Booking notification email sent to admins/agents');
-      } catch (error) {
-        console.error('Failed to send booking notification email:', error);
+          })
+          .catch((err) => console.error('Failed to send pending email:', err));
       }
-
-      return {
-        message: 'Booking successful! Your booking is pending approval. You will receive a confirmation email once approved.',
-        booking: {
-          ...booking,
-          bookingItems,
-        },
-      };
-    });
+    }
+  } catch (err) {
+    console.error('Failed to enqueue booking email:', err);
   }
+
+  try {
+    void this.emailService
+      .sendBookingNotificationToAdminsAndAgents(
+        {
+          id: booking.id,
+          startDate: bookingItems[0]?.startDate.toISOString(),
+          endDate: bookingItems[0]?.endDate.toISOString(),
+          totalPrice: booking.totalPrice,
+          status: booking.status,
+          createdAt: booking.createdAt,
+        },
+        {
+          name: nameToSend,
+          email: emailToSend ?? "",
+          phone: data.guestPhone,
+        }
+      )
+      .catch((err) => console.error('Failed to send admin notification:', err));
+  } catch (err) {
+    console.error('Failed to enqueue admin notification:', err);
+  }
+
+  const message = autoConfirmed
+    ? 'Booking successful and automatically confirmed!'
+    : 'Booking successful! Your booking is pending approval. You will receive a confirmation email once approved.';
+
+  return {
+    message,
+    booking: {
+      ...booking,
+      bookingItems,
+    },
+  };
+}
+
 
   async findAll() {
     return this.prisma.booking.findMany({
@@ -219,6 +275,7 @@ export class BookingService {
             firstName: true,
             lastName: true,
             email: true,
+            isKycVerified: true,
           },
         },
         bookingItems: {
@@ -255,6 +312,7 @@ export class BookingService {
             firstName: true,
             lastName: true,
             email: true,
+            isKycVerified: true,
           },
         },
         bookingItems: {
@@ -276,6 +334,38 @@ export class BookingService {
 
     if (!booking) {
       throw new NotFoundException(`Booking with ID ${id} not found`);
+    }
+
+    // Prevent confirming booking if user's KYC is not verified
+    if (updateData.status === 'CONFIRMED' && booking.user?.id && !booking.user.isKycVerified) {
+      throw new BadRequestException('Cannot confirm booking until user KYC is verified');
+    }
+
+    // If status is changing to CONFIRMED, set confirmedAt
+    if (updateData.status === 'CONFIRMED' && booking.status !== 'CONFIRMED') {
+      updateData.confirmedAt = new Date();
+    }
+
+    // Enforce workflow: can only complete a confirmed booking
+    if (updateData.status === 'COMPLETED' && booking.status !== 'CONFIRMED') {
+      throw new BadRequestException('Cannot complete booking before it is confirmed');
+    }
+
+    // If status is changing to COMPLETED, compute late fee once and set completedAt
+    if (updateData.status === 'COMPLETED' && booking.status !== 'COMPLETED') {
+      const end = booking.bookingItems[0]?.endDate ? new Date(booking.bookingItems[0].endDate as any) : null;
+      const now = new Date();
+      let lateFee = 0;
+      if (end && now > end) {
+        const diffMs = now.getTime() - end.getTime();
+        const hours = Math.ceil(diffMs / (1000 * 60 * 60));
+        lateFee = hours * 20;
+      }
+      updateData.completedAt = now;
+      if (lateFee > 0) {
+        updateData.lateFee = lateFee;
+        updateData.totalPrice = (booking.totalPrice || 0) + lateFee;
+      }
     }
 
     const updatedBooking = await this.prisma.booking.update({
@@ -315,22 +405,27 @@ export class BookingService {
           : booking.guestName || 'Valued Customer';
 
         if (customerEmail) {
-          await this.emailService.sendBookingConfirmationEmail(
-            customerEmail,
-            customerName,
-            {
-              id: updatedBooking.id,
-              startDate: updatedBooking.bookingItems[0]?.startDate,
-              endDate: updatedBooking.bookingItems[0]?.endDate,
-              totalPrice: updatedBooking.totalPrice,
-              status: updatedBooking.status,
-            }
-          );
+          void this.emailService
+            .sendBookingConfirmationEmail(
+              customerEmail,
+              customerName,
+              {
+                id: updatedBooking.id,
+                startDate: updatedBooking.bookingItems[0]?.startDate,
+                endDate: updatedBooking.bookingItems[0]?.endDate,
+                totalPrice: updatedBooking.totalPrice,
+                status: updatedBooking.status,
+              }
+            )
+            .catch((error) => console.error('Failed to send confirmation email:', error));
         }
       } catch (error) {
-        console.error('Failed to send confirmation email:', error);
+        console.error('Failed to enqueue confirmation email:', error);
       }
     }
+
+    // Emit update event
+    this.events.publish({ type: 'booking_updated', payload: updatedBooking });
 
     return updatedBooking;
   }
@@ -399,11 +494,16 @@ export class BookingService {
     
     const vehicleName = booking.bookingItems[0]?.vehicle?.name || 'Unknown Vehicle';
 
-    await this.emailService.sendBookingCancellationNotification(
-      id,
-      customerName,
-      vehicleName
-    );
+    void this.emailService
+      .sendBookingCancellationNotification(
+        id,
+        customerName,
+        vehicleName
+      )
+      .catch((err) => console.error('Failed to send cancellation notification:', err));
+
+    return updatedBooking;
+    this.events.publish({ type: 'booking_cancelled', payload: updatedBooking });
 
     return updatedBooking;
   }

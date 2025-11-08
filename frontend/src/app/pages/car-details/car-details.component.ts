@@ -4,13 +4,14 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { VehicleService, Vehicle } from '../../services/vehicle.service';
 import { AuthService } from '../../services/auth.service';
 import { ReviewComponent } from '../../components/review/review.component';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-car-details',
   standalone: true,
   imports: [CommonModule, RouterLink, ReviewComponent],
   templateUrl: './car-details.component.html',
-  styleUrl: './car-details.component.css'
+  styleUrls: ['./car-details.component.css']
 })
 export class CarDetailsComponent implements OnInit {
   vehicle: Vehicle | null = null;
@@ -22,8 +23,17 @@ export class CarDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private vehicleService: VehicleService,
-    public authService: AuthService
+    public authService: AuthService,
+    private cartService: CartService,
   ) {}
+
+  addToCart() {
+    if (this.vehicle) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.cartService.addVehicle(this.vehicle as any);
+      this.router.navigate(['/cart']);
+    }
+  }
 
   ngOnInit() {
     this.route.params.subscribe(params => {

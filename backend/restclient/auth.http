@@ -10,10 +10,22 @@ Content-Type: application/json
 
 {
   "email": "itsbrian2025@gmail.com",
-  "password": "admin123456",
+  "password": "123456",
   "firstName": "Brian",
   "lastName": "agent",
   "role": "AGENT"
+}
+
+### 1. Register Admin User
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "kimutaibrian922@gmail.com",
+  "password": "123456",
+  "firstName": "Brian",
+  "lastName": "agent",
+  "role": "ADMIN"
 }
 
 

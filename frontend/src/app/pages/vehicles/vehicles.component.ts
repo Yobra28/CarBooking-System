@@ -11,7 +11,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './vehicles.component.html',
-  styleUrl: './vehicles.component.css'
+  styleUrls: ['./vehicles.component.css']
 })
 export class VehiclesComponent implements OnInit {
   vehicles: Vehicle[] = [];

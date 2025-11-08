@@ -20,7 +20,7 @@ interface DashboardStats {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './agent-dashboard.component.html',
-  styleUrl: './agent-dashboard.component.css'
+  styleUrls: ['./agent-dashboard.component.css']
 })
 export class AgentDashboardComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
@@ -314,4 +314,9 @@ export class AgentDashboardComponent implements OnInit, OnDestroy {
       default: return 'bg-gray-100 text-gray-800';
     }
   }
-} 
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/']);
+  }
+}

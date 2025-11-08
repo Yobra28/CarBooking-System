@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Get, Body, Param, Patch, Delete, UseGuards, Sse, MessageEvent } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Patch, Delete, UseGuards, Sse, MessageEvent, HttpCode, HttpStatus } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
@@ -14,6 +14,7 @@ export class BookingController {
   constructor(private readonly bookingService: BookingService, private readonly bookingEvents: BookingEventsService) {}
 
   @Post('guest')
+  @HttpCode(HttpStatus.ACCEPTED)
   async createGuestBooking(@Body() createBookingDto: CreateBookingDto) {
     return this.bookingService.create(createBookingDto);
   }
@@ -21,6 +22,7 @@ export class BookingController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'AGENT', 'CUSTOMER')
+  @HttpCode(HttpStatus.ACCEPTED)
   async createBooking(@Body() createBookingDto: CreateBookingDto) {
     return this.bookingService.create(createBookingDto);
   }

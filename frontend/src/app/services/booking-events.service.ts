@@ -22,7 +22,8 @@ export class BookingEventsService {
 
     this.eventSource.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data);
+        const raw = JSON.parse(event.data);
+        const data = raw?.data ?? raw; // unwrap Nest Sse { data: e }
         this.zone.run(() => this.subject.next(data as BookingEvent));
       } catch (e) {
         // ignore malformed events

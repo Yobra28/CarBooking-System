@@ -54,7 +54,7 @@ export class CustomerDashboardComponent implements OnInit {
 
   // Profile edit state
   editProfile = false;
-  profile: { firstName: string; lastName: string; email: string; phone?: string } = { firstName: '', lastName: '', email: '', phone: '' };
+  profile: { firstName: string; lastName: string; email: string; phone?: string; totalSpent?: number } = { firstName: '', lastName: '', email: '', phone: '', totalSpent: 0 };
 
   // Rules modal state
   showRulesModal = false;
@@ -139,10 +139,13 @@ export class CustomerDashboardComponent implements OnInit {
     const pendingBookings = this.bookings.filter(b => b.status === 'PENDING');
     const cancelledBookings = this.bookings.filter(b => b.status === 'CANCELLED');
     
-    // Calculate total spent from completed (and optionally confirmed) bookings only
-    const totalSpent = this.bookings
+    // Prefer server-side totalSpent if provided on profile (keeps telemetric accuracy)
+    const profileTotal = this.profile?.totalSpent ?? 0;
+    // Fallback: compute from completed bookings if profile not available
+    const computedTotal = this.bookings
       .filter(b => b.status === 'COMPLETED')
       .reduce((sum, b) => sum + b.totalPrice, 0);
+    const totalSpent = profileTotal || computedTotal;
     
     // Calculate average rating from user's reviews
     const averageRating = this.userReviews.length > 0 
@@ -302,7 +305,10 @@ export class CustomerDashboardComponent implements OnInit {
           lastName: me.lastName,
           email: me.email,
           phone: (me as any).phone,
+          totalSpent: (me as any).totalSpent ?? 0,
         };
+        // Update total spent metric immediately from profile
+        this.dashboardStats.totalSpent = this.profile.totalSpent ?? 0;
       },
       error: (err) => {
         console.error('Failed to load profile', err);
@@ -388,9 +394,11 @@ export class CustomerDashboardComponent implements OnInit {
   }
 
   getTotalSpent(): number {
-    return this.bookings
-      .filter(b => b.status === 'COMPLETED')
-      .reduce((sum, b) => sum + b.totalPrice, 0);
+    return this.profile?.totalSpent ?? (
+      this.bookings
+        .filter(b => b.status === 'COMPLETED')
+        .reduce((sum, b) => sum + b.totalPrice, 0)
+    );
   }
 
   getActiveBookings(): number {

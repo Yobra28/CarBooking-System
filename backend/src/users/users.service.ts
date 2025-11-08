@@ -143,6 +143,7 @@ export class UsersService {
   async findById(id: string) {
     return this.prismaservice.user.findUnique({
       where: { id },
+      // Cast select to any until Prisma client is regenerated
       select: {
         id: true,
         email: true,
@@ -151,12 +152,13 @@ export class UsersService {
         role: true,
         isActive: true,
         phone: true,
+        totalSpent: true,
         createdAt: true,
         isKycVerified: true,
         driverLicenseUrl: true,
         nationalIdUrl: true,
         liveProfileUrl: true,
-      },
+      } as any,
     });
   }
 

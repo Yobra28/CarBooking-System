@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { EmailService } from 'src/email/email.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { BookingEventsService } from './booking.events.service';
+import { PaymentsService } from '../payments/payments.service';
 // import {User} from '../users/interface';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class BookingService {
       private prisma: PrismaService,
       private emailService: EmailService,
       private events: BookingEventsService,
+      private payments: PaymentsService,
     ) {}
 
   private calculateDays(startDate: Date, endDate: Date): number {
@@ -48,7 +50,7 @@ async create(data: CreateBookingDto) {
   console.log('Final total price:', finalTotalPrice);
 
   // ✅ 1. DO TRANSACTION FIRST (NO EMAILS HERE)
-  const { booking, bookingItems, emailToSend, nameToSend, autoConfirmed } =
+  const { booking, bookingItems, emailToSend, nameToSend } =
     await this.prisma.$transaction(async (prisma) => {
       // ✅ All KYC checks (fast)
       let user: { isKycVerified: boolean; driverLicenseUrl?: string | null; nationalIdUrl?: string | null; liveProfileUrl?: string | null } | null = null;
@@ -80,9 +82,9 @@ async create(data: CreateBookingDto) {
         }
       }
 
-      // ✅ Determine initial status: auto-confirm if KYC is verified
-      const initialStatus = user?.isKycVerified ? 'CONFIRMED' : 'PENDING';
-      const confirmedAt = initialStatus === 'CONFIRMED' ? new Date() : undefined;
+      // ✅ Initial status: always PENDING until payment success
+      const initialStatus = 'PENDING';
+      const confirmedAt = undefined;
 
       // ✅ Create booking
       const booking = await prisma.booking.create({
@@ -131,45 +133,59 @@ async create(data: CreateBookingDto) {
         }
       }
 
-      return { booking, bookingItems, emailToSend, nameToSend, autoConfirmed: initialStatus === 'CONFIRMED' };
+      return { booking, bookingItems, emailToSend, nameToSend, autoConfirmed: false };
     });
 
   // Emit created event
   this.events.publish({ type: 'booking_created', payload: { ...booking, bookingItems } });
 
-  // ✅ 2. SEND EMAILS AFTER TRANSACTION (SAFE)
+  // ✅ 2. Trigger M-Pesa STK Push after booking is created (strict: no fallbacks)
   try {
-    if (emailToSend) {
-      if (autoConfirmed) {
-        void this.emailService
-          .sendBookingConfirmationEmail(
-            emailToSend,
-            nameToSend,
-            {
-              id: booking.id,
-              startDate: bookingItems[0]?.startDate,
-              endDate: bookingItems[0]?.endDate,
-              totalPrice: booking.totalPrice,
-              status: booking.status,
-            }
-          )
-          .catch((err) => console.error('Failed to send confirmation email:', err));
-      } else {
-        void this.emailService
-          .sendBookingPendingEmail(emailToSend, nameToSend, {
-            id: booking.id,
-            startDate: bookingItems[0]?.startDate.toISOString(),
-            endDate: bookingItems[0]?.endDate.toISOString(),
-            totalPrice: booking.totalPrice,
-            status: booking.status,
-          })
-          .catch((err) => console.error('Failed to send pending email:', err));
-      }
+    // Determine phone to charge (must exist)
+    let phoneToPay = data.guestPhone;
+    if (!phoneToPay && data.userId) {
+      const u = await this.prisma.user.findUnique({ where: { id: data.userId }, select: { phone: true } });
+      phoneToPay = u?.phone || undefined;
+    }
+
+    // Normalize to MSISDN format (e.g., 2547XXXXXXXX)
+    const normalizePhone = (p?: string) => {
+      if (!p) return undefined;
+      let s = p.replace(/\s|-/g, '');
+      if (s.startsWith('+')) s = s.slice(1);
+      if (s.startsWith('0')) s = '254' + s.slice(1);
+      if (s.startsWith('7')) s = '254' + s;
+      return s;
+    };
+
+    const msisdn = normalizePhone(phoneToPay);
+    if (!msisdn) {
+      // Hard fail: remove created booking and items, then error
+      await this.prisma.$transaction([
+        this.prisma.bookingItem.deleteMany({ where: { bookingId: booking.id } }),
+        this.prisma.booking.delete({ where: { id: booking.id } }),
+      ]);
+      throw new BadRequestException('Phone number is required for M-Pesa payment');
+    }
+
+    try {
+      await this.payments.initiateStkPush({ bookingId: booking.id, phone: msisdn, amount: Math.ceil(booking.totalPrice) });
+    } catch (e) {
+      // Hard fail: rollback booking on STK initiation failure
+      await this.prisma.$transaction([
+        this.prisma.bookingItem.deleteMany({ where: { bookingId: booking.id } }),
+        this.prisma.booking.delete({ where: { id: booking.id } }),
+      ]);
+      throw new BadRequestException('Failed to initiate M-Pesa STK push');
     }
   } catch (err) {
-    console.error('Failed to enqueue booking email:', err);
+    // Propagate error to controller (no fallback booking remains)
+    throw err;
   }
 
+  // ✅ 3. Do not send customer email here; handled on callback on success
+
+  // ✅ 4. Notify admins/agents (optional)
   try {
     void this.emailService
       .sendBookingNotificationToAdminsAndAgents(
@@ -192,12 +208,9 @@ async create(data: CreateBookingDto) {
     console.error('Failed to enqueue admin notification:', err);
   }
 
-  const message = autoConfirmed
-    ? 'Booking successful and automatically confirmed!'
-    : 'Booking successful! Your booking is pending approval. You will receive a confirmation email once approved.';
-
   return {
-    message,
+    message: 'Payment pending, check your phone to complete the booking.',
+    paymentInitiated: true,
     booking: {
       ...booking,
       bookingItems,

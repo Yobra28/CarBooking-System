@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { filter, switchMap, take, timer, Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { BookingService, CreateBookingRequest } from '../../services/booking.service';
+import { BookingEventsService, BookingEvent } from '../../services/booking-events.service';
+import { ToastrService } from 'ngx-toastr';
 import { AuthService, User } from '../../services/auth.service';
 import { UsersService } from '../../services/users.service';
 
@@ -13,7 +16,7 @@ import { UsersService } from '../../services/users.service';
   templateUrl: './booking.component.html',
   styleUrls: ['./booking.component.css']
 })
-export class BookingComponent implements OnInit {
+export class BookingComponent implements OnInit, OnDestroy {
   carId: string | null = null;
   bookingData = {
     guestName: '',
@@ -29,6 +32,9 @@ export class BookingComponent implements OnInit {
   };
   car: any;
   isGuestBooking = false;
+  isProcessing = false;
+  private sseSub?: any;
+  private pollSub?: Subscription;
 
   needsKyc = false;
   kycFiles: { driverLicense?: File; nationalId?: File; liveProfile?: File } = {};
@@ -39,7 +45,9 @@ export class BookingComponent implements OnInit {
     private bookingService: BookingService,
     public authService: AuthService,
     private usersService: UsersService,
-    private router: Router
+    private router: Router,
+    private bookingEvents: BookingEventsService,
+    private toastr: ToastrService,
   ) {}
 
   ngOnInit() {
@@ -150,15 +158,16 @@ export class BookingComponent implements OnInit {
         totalPrice: this.bookingData.totalPrice
       };
 
+      this.isProcessing = true;
       this.http.post('http://localhost:3000/booking/guest', guestBookingData).subscribe({
-        next: (res) => {
-          alert('Guest booking successful!');
-          console.log('Guest booking created:', res);
-          this.router.navigate(['/']);
+        next: (res: any) => {
+          const bookingId = res?.booking?.id;
+          if (bookingId) this.trackBooking(bookingId, true);
         },
         error: (error) => {
           console.error('Guest booking error:', error);
-          alert('Error creating guest booking. Please try again.');
+          this.isProcessing = false;
+          this.toastr.error('Error creating guest booking. Please try again.');
         }
       });
     } else {
@@ -208,34 +217,77 @@ export class BookingComponent implements OnInit {
         totalPrice: this.bookingData.totalPrice
       };
 
+      this.isProcessing = true;
       this.http.post('http://localhost:3000/booking', authenticatedBookingData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.authService.getToken()}`
         }
       }).subscribe({
-        next: (res) => {
-          alert('Booking successful!');
-          console.log('Booking created:', res);
-          this.router.navigate(['/customer-dashboard']);
+        next: (res: any) => {
+          const bookingId = res?.booking?.id;
+          if (bookingId) this.trackBooking(bookingId, false);
         },
         error: (error) => {
           console.error('Booking error:', error);
+          this.isProcessing = false;
           if (error.status === 400 && error.error?.code === 'KYC_REQUIRED') {
             this.needsKyc = true;
-            alert('Please upload your driving license, national ID and a live profile photo to continue.');
+            this.toastr.warning('Please upload your driving license, national ID and a live profile photo to continue.');
             return;
           }
           if (error.status === 401) {
-            alert('Please login to book a car');
+            this.toastr.error('Please login to book a car');
             this.router.navigate(['/login']);
           } else {
-            alert('Error creating booking. Please try again.');
+            this.toastr.error('Error creating booking. Please try again.');
           }
         }
       });
     }
   }
+  ngOnDestroy() {
+    this.sseSub?.unsubscribe?.();
+    this.bookingEvents.disconnect();
+    this.pollSub?.unsubscribe();
+  }
+  private trackBooking(bookingId: string, redirectHomeAfter?: boolean) {
+    // SSE subscription (primary path)
+    this.sseSub = this.bookingEvents.connect().subscribe((ev: any) => {
+      const event: BookingEvent = ev;
+      if (event?.type === 'booking_updated' && event?.payload?.id === bookingId) {
+        this.sseSub?.unsubscribe?.();
+        this.pollSub?.unsubscribe();
+        this.isProcessing = false;
+        if (event.payload.status === 'CONFIRMED') {
+          this.toastr.success('Payment successful — booking confirmed.');
+          this.router.navigate(['/customer-dashboard']);
+        } else if (event.payload.status === 'REJECTED') {
+          this.toastr.error('Payment cancelled — booking rejected.');
+          if (redirectHomeAfter) this.router.navigate(['/']);
+        }
+      }
+    });
+
+    // Polling fallback (in case SSE misses)
+    this.pollSub = timer(1000, 2000).pipe(
+      switchMap(() => this.bookingService.getBookingById(bookingId)),
+      filter((b: any) => b?.paymentStatus && b.paymentStatus !== 'PAYMENT_PENDING'),
+      take(1),
+    ).subscribe((b: any) => {
+      this.sseSub?.unsubscribe?.();
+      this.pollSub?.unsubscribe();
+      this.isProcessing = false;
+      if (b.paymentStatus === 'PAYMENT_SUCCESS' && (b.status === 'CONFIRMED' || b.status === 'PENDING')) {
+        this.toastr.success('Payment successful — booking confirmed.');
+        this.router.navigate(['/customer-dashboard']);
+      } else {
+        this.toastr.error('Payment cancelled — booking rejected.');
+        if (redirectHomeAfter) this.router.navigate(['/']);
+      }
+    });
+  }
+
   private createAuthenticatedBooking(userId: string) {
     const authenticatedBookingData = {
       userId,

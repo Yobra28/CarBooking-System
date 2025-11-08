@@ -24,8 +24,8 @@ export class UsersService {
     return this.http.get<User[]>(`${this.API_URL}/users`, { params });
   }
 
-  getMe(): Observable<User & { phone?: string }> {
-    return this.http.get<User & { phone?: string }>(`${this.API_URL}/users/me`, { headers: this.getHeaders() });
+  getMe(): Observable<User & { phone?: string; totalSpent?: number }> {
+    return this.http.get<User & { phone?: string; totalSpent?: number }>(`${this.API_URL}/users/me`, { headers: this.getHeaders() });
   }
 
   submitKyc(files: { driverLicense?: File; nationalId?: File; liveProfile?: File; }): Observable<any> {

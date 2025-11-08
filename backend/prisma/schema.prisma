@@ -24,6 +24,7 @@ model User {
   kycVerifiedAt    DateTime?
   liveProfileUrl   String?
   nationalIdUrl    String?
+  totalSpent       Float     @default(0)
   bookings         Booking[]
   carts            Cart[]
   reviews          Review[]
@@ -84,6 +85,21 @@ model Booking {
   guestEmail   String?
   guestName    String?
   guestPhone   String?
+
+  // M-Pesa payment tracking
+  paymentStatus          PaymentStatus @default(PAYMENT_PENDING)
+  paymentPhone           String?
+  paymentAmount          Float?
+  mpesaMerchantRequestId String?
+  mpesaCheckoutRequestId String?
+  mpesaReceiptNumber     String?
+  paymentResultCode      Int?
+  paymentResultDesc      String?
+  paymentCallbackRaw     Json?
+  paymentUpdatedAt       DateTime?
+
+  // Accounting flag to avoid double crediting revenue
+  revenueCredited        Boolean @default(false)
   
   user         User?         @relation(fields: [userId], references: [id])
   bookingItems BookingItem[]
@@ -162,4 +178,10 @@ enum BookingStatus {
   CANCELLED
   COMPLETED
   REJECTED
+}
+
+enum PaymentStatus {
+  PAYMENT_PENDING
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
 }

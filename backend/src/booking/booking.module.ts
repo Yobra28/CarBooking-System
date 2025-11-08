@@ -5,11 +5,13 @@ import { BookingController } from './booking.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { EmailModule } from '../email/email.module';
 import { BookingEventsService } from './booking.events.service';
+import { PaymentsModule } from '../payments/payments.module';
+import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [PrismaModule, EmailModule],
+  imports: [PrismaModule, EmailModule, PaymentsModule, EventsModule],
   controllers: [BookingController],
-  providers: [BookingService, BookingEventsService],
-  exports: [BookingService, BookingEventsService],
+  providers: [BookingService],
+  exports: [BookingService],
 })
 export class BookingModule {}
